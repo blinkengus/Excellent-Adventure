@@ -1,5 +1,30 @@
+/*
+ ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
+/\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
+\ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
+ \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
+  \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
+
+
+                                                                                                     
+    ---What?---
+    Combined "master" firmware for Excellent Adventure.
+    Controls LED panels, dumb LEDs, SLIC, and takes analog
+    sound and ambient light inputs.
+    
+    ---Why?---
+    www.carbonworkshop.com/bm10
+      
+    ---Who?---
+    Gustavo Huber - gush@carbonworkshop.com
+    Daniel Massey - pichiste@gmail.com
+  
+    ---When?---
+    June 11, 2010                                                                                             
+*/
+
 #include "Wire.h" 
-#include "BlinkM_funcs.h" 
+#include "BlinkM_funcs.h" //try to use the actual wiring code so we can omit this library in the final build
 
 ///////////////////////////////////////////
 //ringer vars
@@ -124,8 +149,12 @@ void ring() {
 
 ///////////////////////////////////////////
 void initBlinkM() {
-  BlinkM_begin();
-  BlinkM_stopScript(0);  
+  Wire.begin();  //replaces BlinkM_begin()
+//  BlinkM_begin(); 
+//  BlinkM_stopScript(0);
+Wire.beginTransmission(0); //replaces BlinkM_stopScript(0)
+  Wire.send('o');
+  Wire.endTransmission();  
 }
 
 ///////////////////////////////////////////
