@@ -42,10 +42,10 @@ unsigned int logTable[] = {
 void processAudio() { 
   
     //read level
-    int ai = analogRead(audioPin);
+    voiceLevel = analogRead(audioPin);
     
     //offset to zero and get absolute value
-    voiceLevel = ai - zeroOffset;
+    voiceLevel = voiceLevel - zeroOffset;
     voiceLevel = abs(voiceLevel);
     
     //smooth

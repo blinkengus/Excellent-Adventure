@@ -16,6 +16,8 @@ void sendToBlinkMs();
 void setPixel(int x, int y, byte r, byte g, byte b);
 void initRinger();
 void vl_update();
+void cl_update();
+void vs_update();
 float lerp(float start, float stop, float amt);
 void processAudio();
 const int audioPin  = 2;
@@ -34,14 +36,14 @@ int voiceLevel = 0;
 const int zeroOffset = 505;
 
 //blinkM addressing vars
-//const int  X_COUNT = 6;
-//const int  Y_COUNT = 3;
-//const int  NUM_BLINKMS = 18;
-//const byte FIRST_BLINKM_ADDR = 5;
-const int  X_COUNT = 2;
-const int  Y_COUNT = 6;
-const int  NUM_BLINKMS = 12;
+const int  X_COUNT = 6;
+const int  Y_COUNT = 3;
+const int  NUM_BLINKMS = 18;
 const byte FIRST_BLINKM_ADDR = 5;
+//const int  X_COUNT = 2;
+//const int  Y_COUNT = 10;
+//const int  NUM_BLINKMS = 20;
+//const byte FIRST_BLINKM_ADDR = 1;
 byte addresses[X_COUNT][Y_COUNT];
 byte pixelVals[X_COUNT][Y_COUNT][3];
 
@@ -53,6 +55,10 @@ int state = IDLE;
 
 //animations
 int animationIndex = 0;
+int animationCount = 3;
+
+int switchInterval = 700;
+int switchCount = 0;
 
 
 ///////////////////////////////////////////
@@ -98,13 +104,24 @@ void loop() {
   while(state==ACTIVE) {
     
     processAudio();   
+    
 //    int ai = analogRead(audioPin);
 //    voiceLevel = map(ai, zeroOffset, 800, 0, 255);
 //    voiceLevel = constrain(voiceLevel, 0, 255); 
 //    Serial.println(voiceLevel);
       
     //update pixels here
-    vl_update();
+    switch(animationIndex) {
+      case(0): 
+        vl_update();
+        break;
+      case(1):
+        cl_update();
+        break;
+      case(2):
+        vs_update();
+        break;
+    }
     
     //send color values to BlinkMs  
     sendToBlinkMs();
@@ -123,7 +140,17 @@ void loop() {
     //check if other phone has been hung up
     //unimplemented...
     
+    switchCount++;
+    if(switchCount>=switchInterval) {
+      switchCount = 0;
+      animationIndex++;
+      if(animationIndex>=animationCount) {
+        animationIndex = 0;  
+      }
+    }
   }
+  
+  
   
 }
 
@@ -161,6 +188,26 @@ void defineBlinkMAddresses() {
       addr++; 
     }  
   }
+//  addresses[0][0] = 18;
+//  addresses[0][1] = 17;
+//  addresses[0][2] = 16;
+//  addresses[0][3] = 15;
+//  addresses[0][4] = 20;
+//  addresses[0][5] = 19;
+//  addresses[0][6] = 14;
+//  addresses[0][7] = 13;
+//  addresses[0][8] = 12;
+//  addresses[0][9] = 11;
+//  addresses[1][0] = 8;
+//  addresses[1][1] = 7;
+//  addresses[1][2] = 6;
+//  addresses[1][3] = 5;
+//  addresses[1][4] = 10;
+//  addresses[1][5] = 9;
+//  addresses[1][6] = 4;
+//  addresses[1][7] = 3;
+//  addresses[1][8] = 2;
+//  addresses[1][9] = 1;
 }
 
 ///////////////////////////////////////////
@@ -206,19 +253,21 @@ void initRinger() {
   analogReference(DEFAULT); /* sets the input range for the audio. should be modified. */
 }
 
+//////////////////////////////////////////////////////////////////
+// VERTICAL LEVEL
 
 float vl_high_row = 0;
 float vl_target_row = 0;
 //float vl_linger_row = 0;
 //float vl_dissipation = 0.4;
 
-int r, g, b = 0;
-int bottomR = 10;
-int bottomG = 0;
-int bottomB = 255;
-int topR = 255;
-int topG = 0;
-int topB = 10;
+int vl_r, vl_g, vl_b = 0;
+int vl_bottomR = 10;
+int vl_bottomG = 0;
+int vl_bottomB = 255;
+int vl_topR = 255;
+int vl_topG = 0;
+int vl_topB = 10;
 
 
 void vl_update() {
@@ -226,7 +275,7 @@ void vl_update() {
 //  vl_high_row = map(voiceLevel, 0, 255, Y_COUNT-1, 0);
   
   //determine row by lerping
-  vl_target_row = map(voiceLevel, 0, 255, Y_COUNT-1, 0);
+  vl_target_row = map(voiceLevel, 0, 120, Y_COUNT-1, 0) + 1;
   vl_high_row = round(lerp(vl_high_row, vl_target_row, 0.7));
   
 //  //determine high level
@@ -241,20 +290,123 @@ void vl_update() {
 //  vl_linger_row += vl_dissipation;
   
   //determine color
-  r = map(voiceLevel, 0, 255, bottomR, topR);
-  g = map(voiceLevel, 0, 255, bottomG, topG);
-  b = map(voiceLevel, 0, 255, bottomB, topB);
+  vl_r = map(voiceLevel, 0, 255, vl_bottomR, vl_topR);
+  vl_g = map(voiceLevel, 0, 255, vl_bottomG, vl_topG);
+  vl_b = map(voiceLevel, 0, 255, vl_bottomB, vl_topB);
   
   //set color vals
   for(int y=0; y<Y_COUNT; y++) { 
     for(int x=0; x<X_COUNT; x++) {
       if(y>=(int)vl_high_row) {
-        setPixel(x, y, r, g, b);
+        setPixel(x, y, vl_r, vl_g, vl_b);
       } else {
         setPixel(x, y, 0, 0, 0);
       } 
     }
   }
+  
+}
+
+//////////////////////////////////////////////////////////////////
+// TWINKLES
+
+int cl_r, cl_g, cl_b = 0;
+int cl_r1 = 0; 
+int cl_g1 = 0;
+int cl_b1 = 0;
+int cl_r2 = 25;
+int cl_g2 = 0;
+int cl_b2 = 255;
+float cl_angle = 0;
+float cl_angle_inc;
+float cl_angle_inc_min = PI/100;
+float cl_angle_inc_max = PI/7;
+float cl_pos = 0;
+
+
+void cl_update() {
+ 
+  float brightness = voiceLevel/255.0;
+  
+//  cl_angle_inc = voiceLevel*0.004 + cl_angle_inc_min;  //map(voiceLevel, 0, 255, cl_angle_inc_min, cl_angle_inc_max);
+//  cl_pos = (sin(cl_angle)+1) / 2;     
+//  cl_angle += cl_angle_inc;
+  
+//  cl_r = lerp(cl_r1, cl_r2, cl_pos);
+//  cl_g = lerp(cl_g1, cl_g2, cl_pos);
+//  cl_b = lerp(cl_b1, cl_b2, cl_pos); 
+  
+  //set color vals
+  for(int y=0; y<Y_COUNT; y++) { 
+    for(int x=0; x<X_COUNT; x++) {
+      float localBrightness = brightness * random(1000)/1000.0;
+      int r = random(255) * localBrightness;
+      int g = random(255) * localBrightness;
+      int b = random(255) * localBrightness;
+      setPixel(x, y, r, g, b);
+//      setPixel(x, y, cl_r, cl_g, cl_b);
+    }
+  }
+  delay(50);
+}
+
+//////////////////////////////////////////////////////////////////
+// VERTICAL SCANNER
+
+int vs_row = 0;
+int vs_interval;
+int vs_min_interval = 2;
+int vs_max_interval = 20;
+int vs_counter = 0;
+int vs_r = 255;
+int vs_g = 255; 
+int vs_b = 255;
+int vs_rt = 255;
+int vs_gt = 255;
+int vs_bt = 255;
+int vs_color_interval = 50;
+int vs_color_counter = 0;
+
+void vs_update() {
+  
+  vs_interval = map(voiceLevel, 0, 255, vs_max_interval, vs_min_interval);
+  
+  if(vs_counter>=vs_interval) {
+    if(vs_row>Y_COUNT-1) {
+      vs_row = 0;    
+    } else {
+      vs_row++;  
+    }
+    vs_counter = 0;
+  } else {
+    vs_counter++;  
+  }
+  
+  if(vs_color_counter<vs_color_interval) {
+    vs_color_counter++;    
+  } else {
+    vs_rt = random(255);
+    vs_gt = random(255);
+    vs_bt = random(255);
+    Serial.println(vs_r);    
+    vs_color_counter = 0; 
+  }
+  
+  //determine color
+  vs_r = lerp(vs_r, vs_rt, 0.2);
+  vs_g = lerp(vs_g, vs_gt, 0.2);
+  vs_b = lerp(vs_b, vs_bt, 0.2);  
+  
+  for(int y=0; y<Y_COUNT; y++) {
+    for(int x=0; x<X_COUNT; x++) {
+      if(y==vs_row) {
+        setPixel(x, y, vs_r, vs_g, vs_b);     
+      } else {
+        setPixel(x, y, 0x00, 0x00, 0x00);  
+      }
+    }  
+  }
+  
   
 }
 /*
@@ -310,10 +462,10 @@ unsigned int logTable[] = {
 void processAudio() { 
   
     //read level
-    int ai = analogRead(audioPin);
+    voiceLevel = analogRead(audioPin);
     
     //offset to zero and get absolute value
-    voiceLevel = ai - zeroOffset;
+    voiceLevel = voiceLevel - zeroOffset;
     voiceLevel = abs(voiceLevel);
     
     //smooth

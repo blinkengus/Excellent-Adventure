@@ -21,14 +21,14 @@ int voiceLevel = 0;
 const int zeroOffset = 505;
 
 //blinkM addressing vars
-//const int  X_COUNT = 6;
-//const int  Y_COUNT = 3;
-//const int  NUM_BLINKMS = 18;
-//const byte FIRST_BLINKM_ADDR = 5;
-const int  X_COUNT = 2;
-const int  Y_COUNT = 6;
-const int  NUM_BLINKMS = 12;
+const int  X_COUNT = 6;
+const int  Y_COUNT = 3;
+const int  NUM_BLINKMS = 18;
 const byte FIRST_BLINKM_ADDR = 5;
+//const int  X_COUNT = 2;
+//const int  Y_COUNT = 10;
+//const int  NUM_BLINKMS = 20;
+//const byte FIRST_BLINKM_ADDR = 1;
 byte addresses[X_COUNT][Y_COUNT];
 byte pixelVals[X_COUNT][Y_COUNT][3];
 
@@ -40,6 +40,10 @@ int state = IDLE;
 
 //animations
 int animationIndex = 0;
+int animationCount = 3;
+
+int switchInterval = 700;
+int switchCount = 0;
 
 
 ///////////////////////////////////////////
@@ -85,13 +89,24 @@ void loop() {
   while(state==ACTIVE) {
     
     processAudio();   
+    
 //    int ai = analogRead(audioPin);
 //    voiceLevel = map(ai, zeroOffset, 800, 0, 255);
 //    voiceLevel = constrain(voiceLevel, 0, 255); 
 //    Serial.println(voiceLevel);
       
     //update pixels here
-    vl_update();
+    switch(animationIndex) {
+      case(0): 
+        vl_update();
+        break;
+      case(1):
+        cl_update();
+        break;
+      case(2):
+        vs_update();
+        break;
+    }
     
     //send color values to BlinkMs  
     sendToBlinkMs();
@@ -110,7 +125,17 @@ void loop() {
     //check if other phone has been hung up
     //unimplemented...
     
+    switchCount++;
+    if(switchCount>=switchInterval) {
+      switchCount = 0;
+      animationIndex++;
+      if(animationIndex>=animationCount) {
+        animationIndex = 0;  
+      }
+    }
   }
+  
+  
   
 }
 
@@ -148,6 +173,26 @@ void defineBlinkMAddresses() {
       addr++; 
     }  
   }
+//  addresses[0][0] = 18;
+//  addresses[0][1] = 17;
+//  addresses[0][2] = 16;
+//  addresses[0][3] = 15;
+//  addresses[0][4] = 20;
+//  addresses[0][5] = 19;
+//  addresses[0][6] = 14;
+//  addresses[0][7] = 13;
+//  addresses[0][8] = 12;
+//  addresses[0][9] = 11;
+//  addresses[1][0] = 8;
+//  addresses[1][1] = 7;
+//  addresses[1][2] = 6;
+//  addresses[1][3] = 5;
+//  addresses[1][4] = 10;
+//  addresses[1][5] = 9;
+//  addresses[1][6] = 4;
+//  addresses[1][7] = 3;
+//  addresses[1][8] = 2;
+//  addresses[1][9] = 1;
 }
 
 ///////////////////////////////////////////
