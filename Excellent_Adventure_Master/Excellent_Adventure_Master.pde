@@ -1,3 +1,47 @@
+/*
+ ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
+/\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
+\ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
+ \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
+  \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
+
+
+                                                                                                     
+    ---What?---
+    Master controller firmware for Excellent Adventure phone booths.
+    See www.carbonworkshop.com/bm10 for project details.
+      Monitors:
+        +Ambient Light
+        +Switch Hook state of remote booth
+        +Switch Hook state of local booth
+        +Audio signal from remote booth
+        +Others?
+      Controls:
+        +LED Panels via I2C bus (using BlinkM command format)
+        +Warm White LED Panels via a single PWM pin
+        +UV LED Panels via a single PWM pin
+        +Red laser via a single digital pin
+        +Green laser via a single digital pin
+        +Local SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
+        +Remote SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
+        
+    ---Why?---
+    Excellent Adventure is an honorarium art installation to be deployed
+    at Burning Man 2010. The project visualizes the audio signal of an
+    incoming call on each of two interconnected booths on the respective
+    booth's array of over 500 controlled ultra-bright RGB, warm white, 
+    and UV LEDs.
+    
+    ---Who?---
+    Daniel Massey - pichiste@gmail.com
+    Ryan Alexander - scloopy@gmail.com
+    Gabriel Dunne - gdunne@quilime.com
+    Gustavo Huber - gush@carbonworkshop.com
+  
+    ---When?---
+                                                                                                 
+*/
+
 #include <math.h>
 #include "Wire.h" 
 #include "BlinkM_funcs.h" 

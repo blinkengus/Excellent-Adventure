@@ -42,12 +42,12 @@ void loop() {
     Serial.println(p);
     //BlinkM_setRGB( p, 0x00, 0x00, 0x00 );
     //delay(50);
-    BlinkM_setFadeSpeed( p, r);
+    BlinkM_setFadeSpeed( p, random(100));
     BlinkM_fadeToRGB( p, (byte)r, (byte)g, (byte)b  );
-    delay(g);
-    BlinkM_setFadeSpeed( p, 5);
+    //delay(random(50));
+    BlinkM_setFadeSpeed( p, 3);
     BlinkM_fadeToRGB( p, 0x00, 0x00, 0x00);
-    delay (random(255));
+    //delay (random(50));
   }
 
 
