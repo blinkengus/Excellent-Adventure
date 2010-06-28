@@ -11,18 +11,18 @@
     Master controller firmware for Excellent Adventure phone booths.
     See www.carbonworkshop.com/bm10 for project details.
       Monitors:
-        +Ambient Light
+        [ADD ME]+Ambient Light
         +Switch Hook state of remote booth
-        +Switch Hook state of local booth
+        [ADD ME]+Switch Hook state of local booth
         +Audio signal from remote booth
         +Others?
       Controls:
         +LED Panels via I2C bus (using BlinkM command format)
-        +Warm White LED Panels via a single PWM pin
-        +UV LED Panels via a single PWM pin
-        +Red laser via a single digital pin
-        +Green laser via a single digital pin
-        +Local SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
+        [ADD ME]+Warm White LED Panels via a single PWM pin
+        [ADD ME]+UV LED Panels via a single PWM pin
+        [ADD ME]+Red laser via a single digital pin
+        [ADD ME]+Green laser via a single digital pin
+        [ADD ME]+Local SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
         +Remote SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
         
     ---Why?---

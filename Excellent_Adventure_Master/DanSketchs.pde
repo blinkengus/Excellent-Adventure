@@ -8,14 +8,16 @@
 
                                                                                                      
     ---What?---
+    Visualization modes for Excellent Adventure booths.
     
     ---Why?---
+    See Excellent Adventure Master
       
     ---Who?---
-    Gustavo Huber - gush@carbonworkshop.com
+    Daniel Massey - pichiste@gmail.com
   
     ---When?---
-                                                                                                 
+    June 16, 2010                                                                                             
 */
 //////////////////////////////////////////////////////////////////
 // VERTICAL LEVEL
