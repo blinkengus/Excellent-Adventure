@@ -1,20 +1,19 @@
 /**
-*
-* Example sketch. 
-* The update function needs to go in the switch statement in the main loop()
-*
-*/
-
+ *
+ * Example sketch. 
+ * The update function needs to go in the switch statement in the main loop()
+ *
+ */
 
 void me_update() {
-  //update pixels
-  int aw = width/xCount;
-  int ah = height/yCount;
-  for(int y=0; y<yCount; y++) {
-    for(int x=0; x<xCount; x++) {
-      float dis = dist(mouseX, mouseY, x*aw + w/2, y*ah + h/2);   
-      int val = round(map(dis, width/2, 0, 0, 255));
-      setPixel(x, y, val, val, val);
-    }  
-  }
+    for(int y = 0; y < YCOUNT; y++) {
+        for(int x = 0; x < XCOUNT; x++) {
+            setPixel(x, y,
+                (int)map(sin(frameCount / 100.0f), -1, 1, 0, 255),
+                (int)map(sin(frameCount / 68.0f), -1, 1, 0, 255),
+                (int)map(sin(frameCount / 32.0f), -1, 1, 0, 255)
+            );
+        }
+    }
 }
+
