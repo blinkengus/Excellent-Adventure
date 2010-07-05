@@ -9,9 +9,9 @@ void me_update() {
     for(int y = 0; y < YCOUNT; y++) {
         for(int x = 0; x < XCOUNT; x++) {
             setPixel(x, y,
-                (int)map(sin(frameCount / 100.0f), -1, 1, 0, 255),
-                (int)map(sin(frameCount / 68.0f), -1, 1, 0, 255),
-                (int)map(sin(frameCount / 32.0f), -1, 1, 0, 255)
+                (int)map(sin(frameCount / 100.0f + x), -1, 1, 0, 255),
+                (int)map(sin(frameCount / 68.0f  + y),  -1, 1, 0, 255),
+                (int)map(sin(frameCount / 32.0f  + x+y),  -1, 1, 0, 255)
             );
         }
     }
