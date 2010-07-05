@@ -1,4 +1,29 @@
+/*
+ ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
+/\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
+\ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
+ \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
+  \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
 
+
+                                                                                                     
+    ---What?---
+    Audio signal processing utilities for Ex-Adv Master sketch, includes
+    luminance map table courtesy of John Laur - johnl@blurbco.com
+    
+    ---Why?---
+    Because luminance is not linearly related to voltage, or in this case
+    PWM duty cycle. John's table is intended for the 16-bit PWM values
+    used on MaxMs running CYZ_RGB firmware, so we divide them down as
+    needed.
+      
+    ---Who?---
+    Daniel Massey - pichiste@gmail.com
+    Gustavo Huber - gush@carbonworkshop.com
+  
+    ---When?---
+    June 19, 2010                                                                                             
+*/
 
 int lingerLevel = 0;
 int dissipation = 50;
