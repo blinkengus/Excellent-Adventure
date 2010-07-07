@@ -7,12 +7,9 @@
 import processing.opengl.*;
 import javax.media.opengl.*;
 
-import peasy.org.apache.commons.math.*;
-import peasy.org.apache.commons.math.geometry.*;
-import peasy.*;
+import ddf.minim.*;
+import ddf.minim.analysis.*;
 
-
-PeasyCam cam;
 
 int[][]   addresses;
 int[][][] pixelVals;
@@ -27,6 +24,9 @@ float panel_spacing = 2.5;
 
 int animationIndex = 0;
 
+AudioInput lineIn;
+FFT        lineInFFT;
+
 
 void setup()
 {
@@ -35,6 +35,8 @@ void setup()
     //cam = new PeasyCam(this, 0,0,0, 10);
     //cam.setMinimumDistance(5);
     //cam.setMaximumDistance(20);
+    
+    lineIn = minim.getLineIn(Minim.MONO, 8);
 
     //fill addresses
     int thisAddress = 5;
