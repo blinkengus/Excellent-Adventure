@@ -35,8 +35,9 @@
     ---Who?---
     Daniel Massey - pichiste@gmail.com
     Ryan Alexander - scloopy@gmail.com
-    Gabriel Dunne - gdunne@quilime.com
     Gustavo Huber - gush@carbonworkshop.com
+    Gabriel Dunne - gdunne@quilime.com
+    Chris C   -  bionicbadger@gmail.com
   
     ---When?---
                                                                                                  
@@ -48,13 +49,41 @@
 
 ///////////////////////////////////////////
 
+
 //pin config
-const int audioPin  = 2;
-const int ringPin   = 2;
-const int enablePin = 3;
-const int buttonPin = 4;
-const int switchHookPin = 5;
-const int voltagePin = 12;
+  //Analog 0: LIGHTSENSOR
+  //Analog 1: SL1_VOUT
+  //Analog 2: SL2_VOUT
+  //Analog 3:
+  //Analog 4: Remapped to I2C SDA for LED Panels
+  //Analog 5: Remapped to I2C SCK for LED Panels
+  //
+  //AREF:
+  //GND:
+  //D 13: SLI1+2 Power down
+  //D 12: SL2_SHK
+  //D 11 (PWM): M4
+  //D 10 (PWM): M3
+  //D 9 (PWM): M2
+  //D 8: SL2_FR
+  //
+const int   //D 7: SL2_RM
+  //D 6 (PWM): M1
+  //D 5 (PWM):
+  //D 4: SL1_RM
+  //D 3 (PWM): SL1_FR
+  //D 2: SL1_SHK
+  //D 1: Arduino_TX
+  //D 0: Arduino_RX
+
+
+//pin config
+const int audioPin  = 2;  // analog audio input from the Va_OUT pin of SLIC
+const int ringPin   = 2;  // F/R pin from SLIC
+const int enablePin = 3;  // RM pin from SLIC
+const int buttonPin = 4;  // used for testing -- triggers the ring logic pattern
+const int switchHookPin = 5;  // indicates receiver is of hook when HIGH
+const int voltagePin = 12;    // used for testing -- supplies voltage for buttonPin
 
 //ringer vars
 const int ringDelay = 40; //50ms = 20Hz
