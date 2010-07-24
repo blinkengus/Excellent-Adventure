@@ -33,6 +33,9 @@ void loop() {
  
   digitalWrite(enablePin, LOW);
   Serial.println("Ringer off!");
+  Serial.print(analogRead(2));
+  Serial.print("  /  ");
+  Serial.println(analogRead(3));
   
 }
 
