@@ -20,64 +20,42 @@
 
 struct Effect
 {
-    int                                             (*func)(Canvas *, char);
-    int                                             flags;
+    int (*func)(Canvas *, char);
+    int flags;
 };
-
-
-
 
 class EffectManager
 {
-    Effect                                          *   effectsIdle;
-    Effect                                          *   effectsRing;
-    Effect                                          *   effectsCall;
+    Effect *effectsIdle;
+    Effect *effectsRing;
+    Effect *effectsCall;
 
-    char                                                sizeIdle;
-    char                                                sizeRing;
-    char                                                sizeCall;
-    char                                                mode;
-    long                                                period;
-    
-    Canvas                                              canvas0;
-    Canvas                                              canvas1;
+    char   sizeIdle;
+    char   sizeRing;
+    char   sizeCall;
+    char   mode;
+    long   period;
+           
+    Canvas canvas0;
+    Canvas canvas1;
 
 public:
-    EffectManager
-    (
-        long                                            periodMicroSeconds,
-        char                                            canvasWidth,
-        char                                            canvasHeight
-
-    );
+    EffectManager(long periodMicroSeconds, char canvasWidth, char canvasHeight);
     ~EffectManager();
 
     void Destroy();
+    
     // An effect is a static function that is called for each frame of the
     // animation.  The "type" of an effect is its 
-
-    void AddEffectsArrays
-    ( 
-        Effect                                      *   effectsIdle,
-        char                                            sizeIdle,
-        Effect                                      *   effectsRing,
-        char                                            sizeRing,
-        Effect                                      *   effectsCall,
-        char                                            sizeCall
-    );
-
-    void SetMode
-    (
-        char                                            mode
-    );
+    void AddEffectsArrays(Effect *effectsIdle, char sizeIdle,
+                          Effect *effectsRing, char sizeRing,
+                          Effect *effectsCall, char sizeCall);         
+               
+    void SetMode(char mode);
 
     void InstallAnimator();
 
     void Callback();
-    
 };
-
-//extern void ISRGlobal();
-
 
 #endif

@@ -141,7 +141,7 @@ void setup()
 {
   Serial.begin(19200);
   initRinger();
-  initBlinkM(); 
+  initBlinkM();
   defineBlinkMAddresses();
   initPixelVals();
   state = ACTIVE;

@@ -1,38 +1,29 @@
 #include <Wire.h>
 #include <WProgram.h>
 #include "Canvas.h"
+#include "BlinkM_funcs.h"
 
-/*
-extern "C"
- {
- #include "utility/twi.h"    // from Wire library, so we can do bus scanning
- }
- */
 
 Canvas::Canvas()
 {
 }
 
-Canvas::Canvas(char width, char height)
+Canvas::Canvas(char _width, char _height)
 {
-    Init(width, height);
+    Init(_width, _height);
 }
 
-void Canvas::Init(char width, char height)
+void Canvas::Init(char _width, char _height)
 {
-    this->width    = width;
-    this->height = height;
-    widthShift = (width > 64) ? 7
-               : (width > 32) ? 6
-               : (width > 16) ? 5
-               : (width >  8) ? 4
-               : (width >  4) ? 3
-               : (width >  2) ? 2
-               : (width >  1) ? 1
-               : 0;
-    memorySize = (1 << widthShift) * height;
-    canvas = (uint32_t *)malloc(sizeof(uint32_t) * memorySize);
-    canvasEnd = canvas + memorySize;
+    width = _width;
+    height = _height;
+    
+    memorySize = width * height;
+    
+    pixels_r = (uint8_t *)malloc(sizeof(uint8_t) * memorySize);
+    pixels_g = (uint8_t *)malloc(sizeof(uint8_t) * memorySize);
+    pixels_b = (uint8_t *)malloc(sizeof(uint8_t) * memorySize);
+    
     Clear();
 }
 
@@ -43,96 +34,81 @@ Canvas::~Canvas()
 
 void Canvas::Destroy()
 {
-    free(canvas);
+    free(pixels_r);
+    free(pixels_g);
+    free(pixels_b);
 }
+
 
 void Canvas::InitPanels(char firstID)
 {
     firstPixel = firstID;
-    Wire.begin();
-    Wire.beginTransmission(0); //replaces BlinkM_stopScript(0)
-    Wire.send('o');
-    Wire.endTransmission();
+    BlinkM_beginWithPower();
+    BlinkM_setRGB(0, 0x00, 0x00, 0x00);
+    BlinkM_setFadeSpeed(0, 50);
 }
 
 void Canvas::BlitToPanels()
 {
-#ifdef USE_UART
-    static uint8_t RGB[4];
-    uint8_t pixel = 0;
+// #ifdef USE_UART
+//     static uint8_t RGB[4];
+//     uint8_t pixel = 0;
+// 
+//     RGB[0] = RGB[1] = RGB[2] = RGB[3] = 255;
+//     Serial.write(RGB, 4);
+// 
+// #else
+    char pixel = firstPixel;
+// #endif
 
-    RGB[0] = RGB[1] = RGB[2] = RGB[3] = 255;
-    Serial.write(RGB, 4);
-
-#else
-    uint8_t pixel = firstPixel;
-#endif
-
-    for(char y = 0; y < height; y++){
-        //memory = (canvas + (y << widthShift));
-        for (char x = 0; x < width; x++){
-            uint32_t color = GetPixel(x,y);
-#ifdef USE_UART
-            RGB[0] = RED(color);
-            RGB[1] = GREEN(color);
-            RGB[2] = BLUE(color);
-            RGB[3] = pixel; //((x == 0) && (y == 0)) ? 1 : 0;
-            Serial.write(RGB, 4);
-#else
-            Wire.beginTransmission(pixel);
-            Wire.send('n');
-            Wire.send(RED(color));
-            Wire.send(GREEN(color));
-            Wire.send(BLUE(color));
-            Wire.endTransmission();
-#endif
+    int index;
+    for(int y = 0; y < height; y++){
+        for(int x = 0; x < width; x++){
+            index = y * width + x;
+            BlinkM_fadeToRGB( pixel, pixels_r[index], pixels_g[index], pixels_b[index] );
             pixel++;
         }
     }
 }
 
-void Canvas::Clear(uint32_t color)
+void Canvas::Clear(uint8_t r, uint8_t g, uint8_t b)
 {
-    memset(canvas, color, sizeof(uint32_t)*memorySize);
-
-    //long *memory = canvas;
-    //do
-    //{
-    //        *memory = color;
-    //        memory++;
-    //} while (memory != canvasEnd);
-}
-
-void Canvas::PutPixel(int x, int y, uint32_t color)
-{
-    // Ex:
-    // width = 14, height = 12
-    // wS = 4
-    //
-    // x = 3, y = 7
-    // 7 << wS = 112 // 8th row of 16px wide
-    // 112 + 3 = 115 // 4th col of that row
-
-    canvas[XY_TO_LINEAR(x, y)] = color;
-}
-
-uint32_t Canvas::GetPixel(int x, int y)
-{
-    // Ex:
-    // width = 14, height = 12
-    // wS = 4
-    //
-    // x = 3, y = 7
-    // 7 << wS = 112 // 8th row of 16px wide
-    // 112 + 3 = 115 // 4th col of that row
-
-    return canvas[XY_TO_LINEAR(x, y)];
+    memset(pixels_r, r, sizeof(uint8_t) * memorySize);
+    memset(pixels_g, g, sizeof(uint8_t) * memorySize);
+    memset(pixels_b, b, sizeof(uint8_t) * memorySize);
 }
 
 
-inline uint32_t* Canvas::GetCanvas()
+void Canvas::PutPixel(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
-    return canvas;
+    int index = y * width + x;
+    pixels_r[index] = r;
+    pixels_g[index] = g;
+    pixels_b[index] = b;
+}
+void Canvas::PutPixel(int i, uint8_t r, uint8_t g, uint8_t b)
+{
+    pixels_r[i] = r;
+    pixels_g[i] = g;
+    pixels_b[i] = b;
+}
+
+// void Canvas::PutPixelHSV(int x, int y, char r, char g, char b)
+// {
+//     
+// }
+
+uint8_t Canvas::GetR(int x, int y)
+{
+    return pixels_r[ y * width + x ];
+}
+uint8_t Canvas::GetG(int x, int y)
+{
+    return pixels_g[ y * width + x ];
+}
+uint8_t Canvas::GetB(int x, int y)
+{
+    return pixels_b[ y * width + x ];
 }
 
 

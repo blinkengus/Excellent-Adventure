@@ -48,11 +48,12 @@ void ISRGlobal()
 
 void EffectManager::InstallAnimator()
 {
-    Timer1.initialize(period);
-    //typedef void (EffectManager ::* EMISR)();
-    //EMISR p = &EffectManager::ISR;
+    this->canvas0.InitPanels(10);
+    
     emGlobal = this;
-    Timer1.attachInterrupt(ISRGlobal);
+    
+    //Timer1.initialize(period);
+    //Timer1.attachInterrupt(ISRGlobal);
 }
 
 void EffectManager::Callback()
