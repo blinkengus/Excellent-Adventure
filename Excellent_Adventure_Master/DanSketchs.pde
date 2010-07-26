@@ -19,6 +19,7 @@
     ---When?---
     June 16, 2010                                                                                             
 */
+
 //////////////////////////////////////////////////////////////////
 // VERTICAL LEVEL
 
@@ -133,8 +134,8 @@ int vs_bt = 255;
 int vs_color_interval = 50;
 int vs_color_counter = 0;
 
-void vs_update() {
-  
+void vs_update()
+{
   vs_interval = map(voiceLevel, 0, 255, vs_max_interval, vs_min_interval);
   
   if(vs_counter>=vs_interval) {
@@ -172,6 +173,5 @@ void vs_update() {
       }
     }  
   }
-  
-  
 }
+

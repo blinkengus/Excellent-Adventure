@@ -67,7 +67,7 @@
   //D 9 (PWM): M2
   //D 8: SL2_FR
   //
-const int   //D 7: SL2_RM
+//const int   //D 7: SL2_RM
   //D 6 (PWM): M1
   //D 5 (PWM):
   //D 4: SL1_RM
@@ -95,7 +95,7 @@ const int zeroOffset = 505;
 
 //blinkM addressing vars
 const int  X_COUNT = 6;
-const int  Y_COUNT = 3;
+const int  Y_COUNT = 11;
 const int  NUM_BLINKMS = 18;
 const byte FIRST_BLINKM_ADDR = 5;
 //const int  X_COUNT = 2;
@@ -113,25 +113,45 @@ int state = IDLE;
 
 //animations
 int animationIndex = 0;
-int animationCount = 3;
+int animationCount = 1;
 
 int switchInterval = 700;
-int switchCount = 0;
+int switchCount    = 0;
+
+
+struct LedMode_testCycle
+{
+  void init()
+  {
+  };
+  
+  void step()
+  {
+    for(int y = 0; y < Y_COUNT; y++){ 
+      for(int x = 0; x < X_COUNT; x++){
+        setPixel(x, y, 255, 255, 0);
+      }
+    }
+  };
+} modeTestCycle;
 
 
 ///////////////////////////////////////////
-void setup() {
+void setup()
+{
   Serial.begin(19200);
   initRinger();
   initBlinkM(); 
   defineBlinkMAddresses();
-  initPixelVals();    
+  initPixelVals();
+  state = ACTIVE;
 }
 
 ///////////////////////////////////////////
-void loop() {
-  
-  while(state==IDLE) {
+void loop()
+{
+  while(state == IDLE)
+  {
      //do nothing... except check for ringing  
     if(digitalRead(buttonPin) == HIGH) { /* need to add conditional for whether receiver is on hook */
       state = RINGING;  
@@ -141,8 +161,8 @@ void loop() {
     }    
   }
   
-  while(state==RINGING) {
-    
+  while(state == RINGING)
+  {
     ring();
     delay(ringSpacing);
   
@@ -159,8 +179,8 @@ void loop() {
     delay(ringSpacing);    
   }
   
-  while(state==ACTIVE) {
-    
+  while(state == ACTIVE)
+  {
     processAudio();   
     
 //    int ai = analogRead(audioPin);
@@ -169,9 +189,9 @@ void loop() {
 //    Serial.println(voiceLevel);
       
     //update pixels here
-    switch(animationIndex) {
-      case(0): 
-        vl_update();
+    switch(animationIndex){
+      case(0):
+        modeTestCycle.step();
         break;
       case(1):
         cl_update();
@@ -199,21 +219,16 @@ void loop() {
     //unimplemented...
     
     switchCount++;
-    if(switchCount>=switchInterval) {
+    if(switchCount >= switchInterval){
       switchCount = 0;
-      animationIndex++;
-      if(animationIndex>=animationCount) {
-        animationIndex = 0;  
-      }
+      animationIndex = (animationIndex + 1) % animationCount;
     }
   }
-  
-  
-  
 }
 
 ///////////////////////////////////////////
-void ring() {
+void ring()
+{
   for(int i = 0; i < 5; i++) {
     //for(int ringDelay = 100; ringDelay>10; ringDelay=ringDelay-10){
     digitalWrite(ringPin, LOW);
@@ -226,11 +241,11 @@ void ring() {
     Serial.print(" ");
     //} 
   }
-  
 }
 
 ///////////////////////////////////////////
-void initBlinkM() {
+void initBlinkM()
+{
   BlinkM_begin();
   BlinkM_stopScript(0);  
   BlinkM_setRGB(0, 0x00, 0x00, 0x00);
@@ -238,34 +253,15 @@ void initBlinkM() {
 
 ///////////////////////////////////////////
 // Maps the blinkM addresses to x, y coordinates
-void defineBlinkMAddresses() {
+void defineBlinkMAddresses()
+{
   byte addr = FIRST_BLINKM_ADDR;
-  for(int x=0; x<X_COUNT; x++) {
-    for(int y=Y_COUNT-1; y>=0; y--) {
+  for(int x = 0; x < X_COUNT; x++){
+    for(int y = Y_COUNT - 1; y >= 0; y--){
       addresses[x][y] = addr;
-      addr++; 
-    }  
+      addr++;
+    }
   }
-//  addresses[0][0] = 18;
-//  addresses[0][1] = 17;
-//  addresses[0][2] = 16;
-//  addresses[0][3] = 15;
-//  addresses[0][4] = 20;
-//  addresses[0][5] = 19;
-//  addresses[0][6] = 14;
-//  addresses[0][7] = 13;
-//  addresses[0][8] = 12;
-//  addresses[0][9] = 11;
-//  addresses[1][0] = 8;
-//  addresses[1][1] = 7;
-//  addresses[1][2] = 6;
-//  addresses[1][3] = 5;
-//  addresses[1][4] = 10;
-//  addresses[1][5] = 9;
-//  addresses[1][6] = 4;
-//  addresses[1][7] = 3;
-//  addresses[1][8] = 2;
-//  addresses[1][9] = 1;
 }
 
 ///////////////////////////////////////////
@@ -280,11 +276,12 @@ void initPixelVals() {
   }  
 }
 
-///////////////////////////////////////////
 
-void sendToBlinkMs() {
-  for(int x=0; x<X_COUNT; x++) {
-    for(int y=0; y<Y_COUNT; y++) {
+///////////////////////////////////////////
+void sendToBlinkMs()
+{
+  for(int x = 0; x < X_COUNT; x++) {
+    for(int y = 0; y < Y_COUNT; y++) {
       byte addr = addresses[x][y];
       BlinkM_setRGB(addr, pixelVals[x][y][0], pixelVals[x][y][1], pixelVals[x][y][2]);
     }  
@@ -292,13 +289,16 @@ void sendToBlinkMs() {
 }
 
 ///////////////////////////////////////////
-void setPixel(int x, int y, byte r, byte g, byte b) {
+void setPixel(int x, int y, byte r, byte g, byte b)
+{
   pixelVals[x][y][0] = r;
   pixelVals[x][y][1] = g;
   pixelVals[x][y][2] = b;  
 }
 
-void initRinger() {
+
+void initRinger()
+{
   pinMode(ringPin, OUTPUT);
   pinMode(enablePin, OUTPUT);
   pinMode(buttonPin, INPUT);
