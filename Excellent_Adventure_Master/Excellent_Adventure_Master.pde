@@ -1,107 +1,204 @@
 /*
- ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
-/\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
-\ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
- \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
-  \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
+   ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
+   /\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
+   \ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
+   \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
+   \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
 
 
-                                                                                                     
-    ---What?---
-    Master controller firmware for Excellent Adventure phone booths.
-    See www.carbonworkshop.com/bm10 for project details.
-      Monitors:
-        [ADD ME]+Ambient Light
-        +Switch Hook state of remote booth
-        [ADD ME]+Switch Hook state of local booth
-        +Audio signal from remote booth
-        +Others?
-      Controls:
-        +LED Panels via I2C bus (using BlinkM command format)
-        [ADD ME]+Warm White LED Panels via a single PWM pin
-        [ADD ME]+UV LED Panels via a single PWM pin
-        [ADD ME]+Red laser via a single digital pin
-        [ADD ME]+Green laser via a single digital pin
-        [ADD ME]+Local SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
-        +Remote SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
-        
-    ---Why?---
-    Excellent Adventure is an honorarium art installation to be deployed
-    at Burning Man 2010. The project visualizes the audio signal of an
-    incoming call on each of two interconnected booths on the respective
-    booth's array of over 500 controlled ultra-bright RGB, warm white, 
-    and UV LEDs.
+   ---What?---
+   Combined "master" firmware for Excellent Adventure.
+   Controls LED panels, dumb LEDs, SLIC, and takes analog
+   sound and ambient light inputs.
+
+   ---Why?---
+   www.carbonworkshop.com/bm10
+
+   ---Who?---
+   Chris Condrat - chris@g6net.com
+   Gustavo Huber - gush@carbonworkshop.com
+   Daniel Massey - pichiste@gmail.com
+
+   ---When?---
+   June 11, 2010
+ */
+
+#include <Wire.h>
+#include <WProgram.h>
+#include <TimerOne.h>
+#include "EffectManager.h"
+
+#include "Effects.h"
+
+
+// Define if this is the master booth
+#define BOOTH_MASTER
+
+// 
+#define POLLING_DELAY           1000
+
+#define PERIOD_MICROSEC         50000
+#define PANELS_WIDTH            9
+#define PANELS_HEIGHT           10
+
+#define STATE_IDLE              0
+#define STATE_RING              1
+#define STATE_CALL              2
+
+#define PIN_SENSOR_LIGHT        0
+
+
+//
+//  
+//              
+//          +--------+   +--------+ 
+//  Tip ----| SLIC_L |   | SLIC_L |
+//          |        |   |        |
+//  Ring ---|        |   |        |
+//          +--------+   +--------+
+//            |    |       |    |
+//          +---------------------+
+//          |                     |
+//          |                     |
+//          |                     |
+//          |                     |
+//          |                     |
+//          +---------------------+
+//
+//
+//
+
+// L = Local; R = Remote
+
+
+//pin definitions
+//Analog 0: LIGHTSENSOR
+//Analog 1: SL1_VOUT
+//Analog 2: SL2_VOUT
+//Analog 3:
+//Analog 4: Remapped to I2C SDA for LED Panels
+//Analog 5: Remapped to I2C SCK for LED Panels
+//
+//AREF:
+//GND:
+//D 13: SLI1+2 Power down
+const byte SH2 = 12; //D 12: SL2_SHK
+//D 11 (PWM): M4
+//D 10 (PWM): M3
+//D 9 (PWM): M2
+const byte FR2 = 8;  //D 8: SL2_FR
+//
+const byte RM2 = 7;  //D 7: SL2_RM
+//D 6 (PWM): M1
+//D 5 (PWM):
+const byte RM1 = 4;  //D 4: SL1_RM
+const byte FR1 = 3;  //D 3 (PWM): SL1_FR
+const byte SH1 = 2;  //D 2: SL1_SHK
+//D 1: Arduino_TX
+//D 0: Arduino_RX
+
+int time0;
+
+int blinkTime0;
+bool blinkMode;
+
+char state;
+
+EffectManager EM(PERIOD_MICROSEC);
+
+
+Effect effects[1] =
+{
+    {&Spotlight, 0}
+};
+
+
+void setup()
+{
+    state = STATE_IDLE;
+
+    // Pin assignments
+
+    pinMode(SH2, INPUT);
+    blinkMode = false;
+
+    pinMode(13, OUTPUT);
+    Serial.begin(38400);
+    EM.AddEffectsArrays
+    (
+        effects, 1, 
+        effects, 1, 
+        effects, 1
+    );
+    EM.SetMode(EM_MODE_IDLE);
+    EM.InitPanels();
+    time0 = blinkTime0 = millis();
+    //EM.InstallAnimator();
+}
+
+// Both on hook -> enable ringing
+// OffHook -> Ring other phone -> OffHook Other phone -> Ring off
+// -> Hang-up phone -> wait for other hang-up 
+
+
+
+void loop()
+{
     
-    ---Who?---
-    Daniel Massey - pichiste@gmail.com
-    Ryan Alexander - scloopy@gmail.com
-    Gustavo Huber - gush@carbonworkshop.com
-    Gabriel Dunne - gdunne@quilime.com
-    Chris C   -  bionicbadger@gmail.com
-  
-    ---When?---
-                                                                                                 
-*/
+    switch (state)
+    {
+    case STATE_IDLE:
 
-#include <math.h>
-#include "Wire.h" 
-#include "BlinkM_funcs.h" 
+        break;
+    case STATE_RING:
+        break;
+    case STATE_CALL:
+    default:
+        break;
 
+    };
+    int time1 = millis();
+    if ((time1 - time0) > 20)
+    {
+        time0 = time1;
+        EM.Callback();
+    }    
+
+    if ((time1 - blinkTime0) > 1000)
+    {
+        blinkTime0 = time1;
+        blinkMode = !blinkMode;
+        digitalWrite(13, blinkMode ? HIGH : LOW);
+    }    
+
+
+    //delay(POLLING_DELAY);
+}
+
+
+
+/*
 ///////////////////////////////////////////
-
-
-//pin config
-  //Analog 0: LIGHTSENSOR
-  //Analog 1: SL1_VOUT
-  //Analog 2: SL2_VOUT
-  //Analog 3:
-  //Analog 4: Remapped to I2C SDA for LED Panels
-  //Analog 5: Remapped to I2C SCK for LED Panels
-  //
-  //AREF:
-  //GND:
-  //D 13: SLI1+2 Power down
-  //D 12: SL2_SHK
-  //D 11 (PWM): M4
-  //D 10 (PWM): M3
-  //D 9 (PWM): M2
-  //D 8: SL2_FR
-  //
-//const int   //D 7: SL2_RM
-  //D 6 (PWM): M1
-  //D 5 (PWM):
-  //D 4: SL1_RM
-  //D 3 (PWM): SL1_FR
-  //D 2: SL1_SHK
-  //D 1: Arduino_TX
-  //D 0: Arduino_RX
-
-
-//pin config
-const int audioPin  = 2;  // analog audio input from the Va_OUT pin of SLIC
-const int ringPin   = 2;  // F/R pin from SLIC
-const int enablePin = 3;  // RM pin from SLIC
-const int buttonPin = 4;  // used for testing -- triggers the ring logic pattern
-const int switchHookPin = 5;  // indicates receiver is of hook when HIGH
-const int voltagePin = 12;    // used for testing -- supplies voltage for buttonPin
-
 //ringer vars
+const int ringPin   = 2;
+const int enablePin = 3;
+const int buttonPin = 4;
+const int switchHookPin = 5;
 const int ringDelay = 40; //50ms = 20Hz
 const int ringSpacing = 220;
 
 //audio vars
+const int audioPin = 2;
 int voiceLevel = 0;
-const int zeroOffset = 505;
+const int noiseLevel = 505;
+//const int threshold = 0;
+const int idleBright = 0;
 
 //blinkM addressing vars
 const int  X_COUNT = 6;
-const int  Y_COUNT = 11;
+const int  Y_COUNT = 3;
 const int  NUM_BLINKMS = 18;
 const byte FIRST_BLINKM_ADDR = 5;
-//const int  X_COUNT = 2;
-//const int  Y_COUNT = 10;
-//const int  NUM_BLINKMS = 20;
-//const byte FIRST_BLINKM_ADDR = 1;
 byte addresses[X_COUNT][Y_COUNT];
 byte pixelVals[X_COUNT][Y_COUNT][3];
 
@@ -111,202 +208,148 @@ const int RINGING = 1;
 const int ACTIVE = 2;
 int state = IDLE;
 
-//animations
-int animationIndex = 0;
-int animationCount = 1;
-
-int switchInterval = 700;
-int switchCount    = 0;
-
-
-struct LedMode_testCycle
-{
-  void init()
-  {
-  };
-  
-  void step()
-  {
-    for(int y = 0; y < Y_COUNT; y++){ 
-      for(int x = 0; x < X_COUNT; x++){
-        setPixel(x, y, 255, 255, 0);
-      }
-    }
-  };
-} modeTestCycle;
-
 
 ///////////////////////////////////////////
-void setup()
-{
-  Serial.begin(19200);
-  initRinger();
-  initBlinkM();
-  defineBlinkMAddresses();
-  initPixelVals();
-  state = ACTIVE;
+void setup() {
+    Serial.begin(19200);
+    initRinger();
+    initBlinkM(); 
+    defineBlinkMAddresses();
+    initPixelVals();    
 }
 
 ///////////////////////////////////////////
-void loop()
-{
-  while(state == IDLE)
-  {
-     //do nothing... except check for ringing  
-    if(digitalRead(buttonPin) == HIGH) { /* need to add conditional for whether receiver is on hook */
-      state = RINGING;  
-      digitalWrite(enablePin, HIGH);      
-      Serial.println("ringing... ");
-      delay(10);      
-    }    
-  }
-  
-  while(state == RINGING)
-  {
-    ring();
-    delay(ringSpacing);
-  
-    //check to see if phone has been picked up
-    if(digitalRead(switchHookPin == HIGH)) {
-      state = ACTIVE;      
-      digitalWrite(enablePin, LOW);   
-      Serial.println("active ");   
+void loop() {
+
+    while(state==IDLE) {
+        //do nothing... except check for ringing  
+        if(digitalRead(buttonPin)==HIGH ) { 
+            // need to add conditional for whether receiver is on hook 
+            state = RINGING;  
+            digitalWrite(enablePin, HIGH);      
+            delay(10);    
+            Serial.println("change to ringing mode" );  
+        }    
     }
-    
-    //check to s=ee if other phone has been hung up
-    // unimplemented...
-    
-    delay(ringSpacing);    
-  }
-  
-  while(state == ACTIVE)
-  {
-    processAudio();   
-    
-//    int ai = analogRead(audioPin);
-//    voiceLevel = map(ai, zeroOffset, 800, 0, 255);
-//    voiceLevel = constrain(voiceLevel, 0, 255); 
-//    Serial.println(voiceLevel);
-      
-    //update pixels here
-    switch(animationIndex){
-      case(0):
-        modeTestCycle.step();
-        break;
-      case(1):
-        cl_update();
-        break;
-      case(2):
-        vs_update();
-        break;
+
+    while(state==RINGING) {
+
+        ring();
+        delay(ringSpacing);
+
+        //check to see if phone has been picked up
+        if(digitalRead(switchHookPin) == HIGH) {
+            state = ACTIVE;      
+            digitalWrite(enablePin, LOW);   
+            Serial.println("change to active mode");   
+        }
+
+        //check to see if other phone has been hung up
+        // unimplemented...
+
+        delay(ringSpacing);    
     }
-    
-    //send color values to BlinkMs  
-    sendToBlinkMs();
-    
-    //necessary delay 
-    delay(5);     
-    
-    //check to see if this phone has been hung up
-    if(digitalRead(switchHookPin) == LOW) {
-      voiceLevel = 0;
-      BlinkM_setRGB(0, 0x00, 0x00, 0x00);      
-      state = IDLE; 
-      Serial.println("idle ");
+
+    while(state==ACTIVE) {
+
+        //process audio  
+        int ai = analogRead(audioPin);
+        voiceLevel = map(ai, noiseLevel, 800, 0, 255);
+        voiceLevel = constrain(voiceLevel, 0, 255);    
+
+        //update pixels here, in dan's sketch
+        d_update();
+        //add effect randomizer switch case in here
+
+
+        //send color values to BlinkMs  
+        for(int x=0; x<X_COUNT; x++) {
+            for(int y=0; y<Y_COUNT; y++) {
+                byte addr = addresses[x][y];
+                BlinkM_setRGB(addr, pixelVals[x][y][0], pixelVals[x][y][1], pixelVals[x][y][2]);
+            }  
+        }
+        delay(5);     
+
+        //check to see if this phone has been hung up
+        if(digitalRead(switchHookPin) == LOW) {
+            state = IDLE; 
+            Serial.println("change to idle mode");
+        }
+
+        //check if other phone has been hung up
+        //unimplemented...
+
     }
-    
-    //check if other phone has been hung up
-    //unimplemented...
-    
-    switchCount++;
-    if(switchCount >= switchInterval){
-      switchCount = 0;
-      animationIndex = (animationIndex + 1) % animationCount;
-    }
-  }
+
 }
 
 ///////////////////////////////////////////
-void ring()
-{
-  for(int i = 0; i < 5; i++) {
-    //for(int ringDelay = 100; ringDelay>10; ringDelay=ringDelay-10){
-    digitalWrite(ringPin, LOW);
-    Serial.print("di");
-    delay(ringDelay);
-    digitalWrite(ringPin, HIGH);
-    Serial.print("ng ");
-    delay(ringDelay);
-    Serial.print(ringDelay);
-    Serial.print(" ");
-    //} 
-  }
+void ring() {
+    for(int i = 0; i < 5; i++) {
+        //for(int ringDelay = 100; ringDelay>10; ringDelay=ringDelay-10){
+        digitalWrite(ringPin, LOW);
+        Serial.print("di");
+        delay(ringDelay);
+        digitalWrite(ringPin, HIGH);
+        Serial.print("ng ");
+        delay(ringDelay);
+        Serial.print(ringDelay);
+        Serial.print(" ");
+        //} 
+    }
+
 }
 
 ///////////////////////////////////////////
-void initBlinkM()
-{
-  BlinkM_begin();
-  BlinkM_stopScript(0);  
-  BlinkM_setRGB(0, 0x00, 0x00, 0x00);
+void initBlinkM() {
+    Wire.begin();  //replaces BlinkM_begin()
+    //  BlinkM_begin(); 
+    //  BlinkM_stopScript(0);
+    Wire.beginTransmission(0); //replaces BlinkM_stopScript(0)
+    Wire.send('o');
+    Wire.endTransmission();  
 }
 
 ///////////////////////////////////////////
 // Maps the blinkM addresses to x, y coordinates
-void defineBlinkMAddresses()
-{
-  byte addr = FIRST_BLINKM_ADDR;
-  for(int x = 0; x < X_COUNT; x++){
-    for(int y = Y_COUNT - 1; y >= 0; y--){
-      addresses[x][y] = addr;
-      addr++;
+void defineBlinkMAddresses() {
+    byte addr = FIRST_BLINKM_ADDR;
+    for(int x=0; x<X_COUNT; x++) {
+        for(int y=Y_COUNT-1; y>=0; y--) {
+            addresses[x][y] = addr;
+            addr++; 
+        }  
     }
-  }
 }
 
 ///////////////////////////////////////////
 // Init pixel values to zero
 void initPixelVals() {
-  for(int x=0; x<X_COUNT; x++) {
-    for(int y=0; y<Y_COUNT; y++) {
-      pixelVals[x][y][0] = 0; //r
-      pixelVals[x][y][1] = 1; //g
-      pixelVals[x][y][2] = 2; //b
-    } 
-  }  
-}
-
-
-///////////////////////////////////////////
-void sendToBlinkMs()
-{
-  for(int x = 0; x < X_COUNT; x++) {
-    for(int y = 0; y < Y_COUNT; y++) {
-      byte addr = addresses[x][y];
-      BlinkM_setRGB(addr, pixelVals[x][y][0], pixelVals[x][y][1], pixelVals[x][y][2]);
+    for(int x=0; x<X_COUNT; x++) {
+        for(int y=0; y<Y_COUNT; y++) {
+            pixelVals[x][y][0] = 0; //r
+            pixelVals[x][y][1] = 1; //g
+            pixelVals[x][y][2] = 2; //b
+        } 
     }  
-  }  
 }
 
 ///////////////////////////////////////////
-void setPixel(int x, int y, byte r, byte g, byte b)
-{
-  pixelVals[x][y][0] = r;
-  pixelVals[x][y][1] = g;
-  pixelVals[x][y][2] = b;  
+void setPixel(int x, int y, byte r, byte g, byte b) {
+    pixelVals[x][y][0] = r;
+    pixelVals[x][y][1] = g;
+    pixelVals[x][y][2] = b;  
 }
 
-
-void initRinger()
-{
-  pinMode(ringPin, OUTPUT);
-  pinMode(enablePin, OUTPUT);
-  pinMode(buttonPin, INPUT);
-  pinMode(switchHookPin, INPUT);
-  pinMode(voltagePin, OUTPUT);
-  digitalWrite(ringPin, HIGH);
-  digitalWrite(enablePin, LOW);
-  digitalWrite(voltagePin, HIGH);
-//  Serial.println("RM LOW LOW LOW LOW LOW");
-  analogReference(DEFAULT); /* sets the input range for the audio. should be modified. */
+void initRinger() {
+    pinMode(ringPin, OUTPUT);
+    pinMode(enablePin, OUTPUT);
+    pinMode(buttonPin, INPUT);
+    pinMode(switchHookPin, INPUT);
+    digitalWrite(ringPin, HIGH);
+    digitalWrite(enablePin, LOW);
+    Serial.println("RM LOW LOW LOW LOW LOW");
+    analogReference(DEFAULT);  
 }
+*/
