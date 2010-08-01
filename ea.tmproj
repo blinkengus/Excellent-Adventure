@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>Excellent_Adventure_Master/Effects.cpp</string>
+	<string>Excellent_Adventure_Master/Excellent_Adventure_Master.pde</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -13,6 +13,8 @@
 			<string>Excellent_Adventure_Master</string>
 			<key>regexFolderFilter</key>
 			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>selected</key>
+			<true/>
 			<key>sourceDirectory</key>
 			<string>Excellent_Adventure_Master</string>
 		</dict>
@@ -36,9 +38,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>2</integer>
+				<integer>17</integer>
 				<key>line</key>
-				<integer>21</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -50,14 +52,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>144</integer>
+				<integer>16</integer>
 				<key>line</key>
-				<integer>76</integer>
+				<integer>3</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>56</integer>
+			<integer>43</integer>
+		</dict>
+		<key>Excellent_Adventure_Master/EffectManager.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>33</integer>
 		</dict>
 		<key>Excellent_Adventure_Master/EffectManager.h</key>
 		<dict>
@@ -71,7 +87,7 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>1</integer>
+			<integer>0</integer>
 		</dict>
 		<key>Excellent_Adventure_Master/Effects.cpp</key>
 		<dict>
@@ -80,7 +96,7 @@
 				<key>column</key>
 				<integer>1</integer>
 				<key>line</key>
-				<integer>61</integer>
+				<integer>28</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -106,42 +122,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>15</integer>
+				<integer>4</integer>
 				<key>line</key>
-				<integer>111</integer>
+				<integer>128</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>65</integer>
+			<integer>93</integer>
 		</dict>
-		<key>Excellent_Adventure_Master/build_sincos_lut.py</key>
+		<key>Excellent_Adventure_Master/Util.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>16</integer>
+				<integer>17</integer>
 				<key>line</key>
-				<integer>8</integer>
+				<integer>28</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
-		</dict>
-		<key>Excellent_Adventure_Master_V2/Excellent_Adventure_Master_V2.pde</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>29</integer>
-				<key>line</key>
-				<integer>134</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>109</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
@@ -149,11 +151,11 @@
 		<string>Excellent_Adventure_Master/Excellent_Adventure_Master.pde</string>
 		<string>Excellent_Adventure_Master/Effects.h</string>
 		<string>Excellent_Adventure_Master/Effects.cpp</string>
-		<string>Excellent_Adventure_Master/build_sincos_lut.py</string>
-		<string>Excellent_Adventure_Master/EffectManager.h</string>
 		<string>Excellent_Adventure_Master/Canvas.h</string>
 		<string>Excellent_Adventure_Master/Canvas.cpp</string>
-		<string>Excellent_Adventure_Master_V2/Excellent_Adventure_Master_V2.pde</string>
+		<string>Excellent_Adventure_Master/EffectManager.h</string>
+		<string>Excellent_Adventure_Master/EffectManager.cpp</string>
+		<string>Excellent_Adventure_Master/Util.h</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>

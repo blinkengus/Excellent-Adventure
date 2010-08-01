@@ -1,10 +1,9 @@
 /*
-   ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
-   /\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
-   \ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
-   \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
-   \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
-
+   ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______
+   /\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \
+   \ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/
+    \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\
+     \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/
 
    ---What?---
    Combined "master" firmware for Excellent Adventure.
@@ -15,9 +14,10 @@
    www.carbonworkshop.com/bm10
 
    ---Who?---
-   Chris Condrat - chris@g6net.com
-   Gustavo Huber - gush@carbonworkshop.com
-   Daniel Massey - pichiste@gmail.com
+   Chris Condrat  - chris@g6net.com
+   Gustavo Huber  - gush@carbonworkshop.com
+   Daniel Massey  - pichiste@gmail.com
+   Ryan Alexander - ryan@onecm.com
 
    ---When?---
    June 11, 2010
@@ -34,24 +34,21 @@
 // Define if this is the master booth
 #define BOOTH_MASTER
 
-// 
-#define POLLING_DELAY           1000
-
-#define PERIOD_MICROSEC         50000
-#define PANELS_WIDTH            9
-#define PANELS_HEIGHT           10
-
-#define STATE_IDLE              0
-#define STATE_RING              1
-#define STATE_CALL              2
-
-#define PIN_SENSOR_LIGHT        0
-
-
 //
-//  
-//              
-//          +--------+   +--------+ 
+#define POLLING_DELAY       1000
+                            
+#define PERIOD_MICROSEC     50000
+#define PANELS_WIDTH        9
+#define PANELS_HEIGHT       10
+                            
+#define STATE_IDLE          0
+#define STATE_RING          1
+#define STATE_CALL          2
+                            
+#define PIN_SENSOR_LIGHT    0
+
+
+//          +--------+   +--------+
 //  Tip ----| SLIC_L |   | SLIC_L |
 //          |        |   |        |
 //  Ring ---|        |   |        |
@@ -64,12 +61,8 @@
 //          |                     |
 //          |                     |
 //          +---------------------+
-//
-//
-//
 
 // L = Local; R = Remote
-
 
 //pin definitions
 //Analog 0: LIGHTSENSOR
@@ -116,18 +109,18 @@ Effect effects[1] =
 void setup()
 {
     state = STATE_IDLE;
-
+    
     // Pin assignments
-
+    
     pinMode(SH2, INPUT);
     blinkMode = false;
-
+    
     pinMode(13, OUTPUT);
     Serial.begin(38400);
     EM.AddEffectsArrays
     (
-        effects, 1, 
-        effects, 1, 
+        effects, 1,
+        effects, 1,
         effects, 1
     );
     EM.SetMode(EM_MODE_IDLE);
@@ -138,39 +131,32 @@ void setup()
 
 // Both on hook -> enable ringing
 // OffHook -> Ring other phone -> OffHook Other phone -> Ring off
-// -> Hang-up phone -> wait for other hang-up 
-
-
+// -> Hang-up phone -> wait for other hang-up
 
 void loop()
 {
-    
-    switch (state)
-    {
-    case STATE_IDLE:
-
-        break;
-    case STATE_RING:
-        break;
-    case STATE_CALL:
-    default:
-        break;
-
+    switch (state){
+        case STATE_IDLE:
+            break;
+        case STATE_RING:
+            break;
+        case STATE_CALL:
+        default:
+            break;
     };
     int time1 = millis();
     if ((time1 - time0) > 20)
     {
         time0 = time1;
         EM.Callback();
-    }    
-
+    }
+    
     if ((time1 - blinkTime0) > 1000)
     {
         blinkTime0 = time1;
         blinkMode = !blinkMode;
         digitalWrite(13, blinkMode ? HIGH : LOW);
-    }    
-
+    }
 
     //delay(POLLING_DELAY);
 }
@@ -213,23 +199,23 @@ int state = IDLE;
 void setup() {
     Serial.begin(19200);
     initRinger();
-    initBlinkM(); 
+    initBlinkM();
     defineBlinkMAddresses();
-    initPixelVals();    
+    initPixelVals();
 }
 
 ///////////////////////////////////////////
 void loop() {
 
     while(state==IDLE) {
-        //do nothing... except check for ringing  
-        if(digitalRead(buttonPin)==HIGH ) { 
-            // need to add conditional for whether receiver is on hook 
-            state = RINGING;  
-            digitalWrite(enablePin, HIGH);      
-            delay(10);    
-            Serial.println("change to ringing mode" );  
-        }    
+        //do nothing... except check for ringing
+        if(digitalRead(buttonPin)==HIGH ) {
+            // need to add conditional for whether receiver is on hook
+            state = RINGING;
+            digitalWrite(enablePin, HIGH);
+            delay(10);
+            Serial.println("change to ringing mode" );
+        }
     }
 
     while(state==RINGING) {
@@ -239,41 +225,41 @@ void loop() {
 
         //check to see if phone has been picked up
         if(digitalRead(switchHookPin) == HIGH) {
-            state = ACTIVE;      
-            digitalWrite(enablePin, LOW);   
-            Serial.println("change to active mode");   
+            state = ACTIVE;
+            digitalWrite(enablePin, LOW);
+            Serial.println("change to active mode");
         }
 
         //check to see if other phone has been hung up
         // unimplemented...
 
-        delay(ringSpacing);    
+        delay(ringSpacing);
     }
 
     while(state==ACTIVE) {
 
-        //process audio  
+        //process audio
         int ai = analogRead(audioPin);
         voiceLevel = map(ai, noiseLevel, 800, 0, 255);
-        voiceLevel = constrain(voiceLevel, 0, 255);    
+        voiceLevel = constrain(voiceLevel, 0, 255);
 
         //update pixels here, in dan's sketch
         d_update();
         //add effect randomizer switch case in here
 
 
-        //send color values to BlinkMs  
+        //send color values to BlinkMs
         for(int x=0; x<X_COUNT; x++) {
             for(int y=0; y<Y_COUNT; y++) {
                 byte addr = addresses[x][y];
                 BlinkM_setRGB(addr, pixelVals[x][y][0], pixelVals[x][y][1], pixelVals[x][y][2]);
-            }  
+            }
         }
-        delay(5);     
+        delay(5);
 
         //check to see if this phone has been hung up
         if(digitalRead(switchHookPin) == LOW) {
-            state = IDLE; 
+            state = IDLE;
             Serial.println("change to idle mode");
         }
 
@@ -296,7 +282,7 @@ void ring() {
         delay(ringDelay);
         Serial.print(ringDelay);
         Serial.print(" ");
-        //} 
+        //}
     }
 
 }
@@ -304,11 +290,11 @@ void ring() {
 ///////////////////////////////////////////
 void initBlinkM() {
     Wire.begin();  //replaces BlinkM_begin()
-    //  BlinkM_begin(); 
+    //  BlinkM_begin();
     //  BlinkM_stopScript(0);
     Wire.beginTransmission(0); //replaces BlinkM_stopScript(0)
     Wire.send('o');
-    Wire.endTransmission();  
+    Wire.endTransmission();
 }
 
 ///////////////////////////////////////////
@@ -318,8 +304,8 @@ void defineBlinkMAddresses() {
     for(int x=0; x<X_COUNT; x++) {
         for(int y=Y_COUNT-1; y>=0; y--) {
             addresses[x][y] = addr;
-            addr++; 
-        }  
+            addr++;
+        }
     }
 }
 
@@ -331,15 +317,15 @@ void initPixelVals() {
             pixelVals[x][y][0] = 0; //r
             pixelVals[x][y][1] = 1; //g
             pixelVals[x][y][2] = 2; //b
-        } 
-    }  
+        }
+    }
 }
 
 ///////////////////////////////////////////
 void setPixel(int x, int y, byte r, byte g, byte b) {
     pixelVals[x][y][0] = r;
     pixelVals[x][y][1] = g;
-    pixelVals[x][y][2] = b;  
+    pixelVals[x][y][2] = b;
 }
 
 void initRinger() {
@@ -350,6 +336,6 @@ void initRinger() {
     digitalWrite(ringPin, HIGH);
     digitalWrite(enablePin, LOW);
     Serial.println("RM LOW LOW LOW LOW LOW");
-    analogReference(DEFAULT);  
+    analogReference(DEFAULT);
 }
 */

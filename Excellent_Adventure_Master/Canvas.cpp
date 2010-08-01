@@ -47,7 +47,6 @@ void Canvas :: Destroy()
 
 void Canvas :: InitPanels ()
 {
-
 #ifdef BLINKM_PLUGGED_INTO_ARDUINO
     // Use this if the BlinkM is connected to the Arduino for power.
     // Otherwise regular I2C commands will work.
@@ -82,13 +81,10 @@ void Canvas :: InitPanels ()
     Wire.send(0);
     Wire.send(0);
     Wire.endTransmission();
-
-    
 }
 
 void Canvas :: BlitToPanels()
 {
-
 #ifdef USE_UART
     static uint8_t RGB[4];
 #else
@@ -97,12 +93,10 @@ void Canvas :: BlitToPanels()
 #endif
 #endif
 #ifdef USE_UART
-
     // This is a sync frame:
 
     RGB[0] = RGB[1] = RGB[2] = RGB[3] = 255;
     Serial.write(RGB, 4);
-
 #endif
 
 #ifdef BENCHMARK    
@@ -135,10 +129,10 @@ void Canvas :: BlitToPanels()
 #else
                     // Set color immediately:
                     Wire.beginTransmission((uint8_t)(*addr));
-                    Wire.send ('n');
-                    Wire.send (RED256_B(color));
-                    Wire.send (GREEN256_B(color));
-                    Wire.send (BLUE256_B(color));
+                    Wire.send('n');
+                    Wire.send(RED256_B(color));
+                    Wire.send(GREEN256_B(color));
+                    Wire.send(BLUE256_B(color));
                     Wire.endTransmission();
                     //delay(100);
 #endif
