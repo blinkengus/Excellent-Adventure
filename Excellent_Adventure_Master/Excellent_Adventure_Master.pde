@@ -27,7 +27,7 @@
 #include <WProgram.h>
 #include <TimerOne.h>
 #include "EffectManager.h"
-#include "Slic.h"
+
 #include "Effects.h"
 
 
@@ -98,7 +98,6 @@ bool blinkMode;
 char state;
 
 EffectManager EM(PERIOD_MICROSEC);
-SLICControl SC;
 
 
 Effect effects[1] =
