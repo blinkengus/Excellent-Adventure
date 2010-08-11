@@ -3,7 +3,8 @@
 #include "EffectManager.h"
 
 
-int Spotlight(Canvas *c, char mode);
 
+int SimpleColumns(Canvas *c, char mode);
+int Spotlight(Canvas *c, char mode);
 
 #endif
