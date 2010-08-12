@@ -2,6 +2,70 @@
 #include "Canvas.h"
 #include "Util.h"
 
+int SimpleColumns(Canvas *c, char mode)
+{
+    static unsigned char n = 0;
+    static char currentMode = -1;
+    if (mode != currentMode)
+    {
+        // Performed only once.
+        switch(mode)
+        {
+        case EFFECTMODE_INTRO:
+            n = 0;
+            break;
+        case EFFECTMODE_LOOP:
+            break;
+        case EFFECTMODE_OUTRO:
+            break;
+        }
+        currentMode = mode;
+    } else {
+        // 0b00011111 = 0x1F
+        n = (n+1) & 0x1F;
+    }
+
+
+    for (char y = 0; y < CANVAS_HEIGHT; y++)
+    {
+        // Create ascending values
+        // [0, 
+        
+        unsigned char nn = (n+y) & 0x1F;
+        /*
+        uint32_t color = COLOR(0,nn,0);
+        c->PutPixel(0, y, color);
+        c->PutPixel(2, y, color);
+        c->PutPixel(3, y, color);
+        c->PutPixel(5, y, color);
+        c->PutPixel(6, y, color);
+        c->PutPixel(8, y, color);
+        */
+        /*
+        Color_t color = COLOR_B(31,31,31);
+        c->PutPixel(0, y, color);
+        c->PutPixel(1, y, color);
+        c->PutPixel(2, y, color);
+        c->PutPixel(3, y, color);
+        c->PutPixel(4, y, color);
+        c->PutPixel(5, y, color);
+        */
+
+        
+        c->PutPixel(0, y, COLOR(nn,0,0));
+        c->PutPixel(1, y, COLOR(0,nn,0));
+
+        c->PutPixel(2, y, COLOR(0,0,nn));
+
+
+        c->PutPixel(3, y, COLOR_B(nn,0,0));
+
+        c->PutPixel(4, y, COLOR_B(0,nn,0));
+        c->PutPixel(5, y, COLOR_B(0, 0,nn));
+        
+    }
+}
+
 int Spotlight(Canvas *c, char mode)
 {
     static int step = 0;

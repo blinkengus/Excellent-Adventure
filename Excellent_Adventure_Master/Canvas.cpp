@@ -3,23 +3,24 @@
 #include "Canvas.h"
 
 
-//#define BLINKM_PLUGGED_INTO_ARDUINO
+#define BLINKM_PLUGGED_INTO_ARDUINO
 
 // A negative 1 indicates that the entry should be skipped.
 
-static char panelAddresses[] =
+static char panelAddresses[] = 
 {
-    10,    12,  13,    15,  16,    18,
-    19,    21,  22,    24,  25,    27,
-    28,    30,  31,    33,  34,    36,
-    37,    39,  40,    -1,  -1,    45,
-    46,    48,  49,    -1,  -1,    54,
-    55,    -1,  -1,    -1,  -1,    63,
-    64,    -1,  -1,    -1,  -1,    72,
-    73,    -1,  -1,    78,  79,    81,
-    82,    84,  85,    87,  88,    90,
-    91,    93,  94,    96,  97,    99
+    10,     12,  13,    15,  16,    18,
+    19,     21,  22,    24,  25,    27,
+    28,     30,  31,    33,  34,    36,
+    37,     39,  40,    -1,  -1,    45,
+    46,     48,  49,    -1,  -1,    54,
+    55,     -1,  -1,    -1,  -1,    63,
+    64,     -1,  -1,    -1,  -1,    72,
+    73,     -1,  -1,    78,  79,    81,
+    82,     84,  85,    87,  88,    90,
+    91,     93,  94,    96,  97,    99
 };
+    
 
 
 /*
@@ -29,24 +30,25 @@ extern "C"
 }
 */
 
-Canvas::Canvas()
+Canvas :: Canvas()
 {
     m_canvas = (Color_t *)malloc(sizeof(Color_t) * CANVAS_MEMORY_SIZE);
     Clear();
 }
 
-Canvas::~Canvas()
+Canvas :: ~Canvas()
 {
     Destroy();
 }
 
-void Canvas::Destroy()
+void Canvas :: Destroy()
 {
     free(m_canvas);
 }
 
-void Canvas::InitPanels()
+void Canvas :: InitPanels ()
 {
+
 #ifdef BLINKM_PLUGGED_INTO_ARDUINO
     // Use this if the BlinkM is connected to the Arduino for power.
     // Otherwise regular I2C commands will work.
@@ -81,10 +83,13 @@ void Canvas::InitPanels()
     Wire.send(0);
     Wire.send(0);
     Wire.endTransmission();
+
+    
 }
 
 void Canvas :: BlitToPanels()
 {
+
 #ifdef USE_UART
     static uint8_t RGB[4];
 #else
@@ -93,10 +98,12 @@ void Canvas :: BlitToPanels()
 #endif
 #endif
 #ifdef USE_UART
+
     // This is a sync frame:
 
     RGB[0] = RGB[1] = RGB[2] = RGB[3] = 255;
     Serial.write(RGB, 4);
+
 #endif
 
 #ifdef BENCHMARK    
@@ -129,10 +136,10 @@ void Canvas :: BlitToPanels()
 #else
                     // Set color immediately:
                     Wire.beginTransmission((uint8_t)(*addr));
-                    Wire.send('n');
-                    Wire.send(RED256_B(color));
-                    Wire.send(GREEN256_B(color));
-                    Wire.send(BLUE256_B(color));
+                    Wire.send ('n');
+                    Wire.send (RED256_B(color));
+                    Wire.send (GREEN256_B(color));
+                    Wire.send (BLUE256_B(color));
                     Wire.endTransmission();
                     //delay(100);
 #endif
@@ -147,10 +154,10 @@ void Canvas :: BlitToPanels()
                     // Set color immediately:
                     
                     Wire.beginTransmission((uint8_t)(*addr));
-                    Wire.send('n');
-                    Wire.send(RED256(color));
-                    Wire.send(GREEN256(color));
-                    Wire.send(BLUE256(color));
+                    Wire.send ('n');
+                    Wire.send (RED256(color));
+                    Wire.send (GREEN256(color));
+                    Wire.send (BLUE256(color));
                     Wire.endTransmission();
 #endif
                 }
@@ -165,7 +172,10 @@ void Canvas :: BlitToPanels()
 #endif
 }
 
-void Canvas::Clear(Color_t color)
+void Canvas :: Clear
+(
+    Color_t                                         color
+)
 {
     memset(m_canvas, color, sizeof(Color_t)*CANVAS_MEMORY_SIZE);
 
@@ -177,7 +187,12 @@ void Canvas::Clear(Color_t color)
     //} while (memory != canvasEnd);
 }
 
-void Canvas::PutPixel(char x, char y, Color_t color)
+void Canvas :: PutPixel
+(
+    char                                            x,
+    char                                            y,
+    Color_t                                         color
+)
 {
     // Ex:
     // width = 14, height = 12
@@ -190,7 +205,11 @@ void Canvas::PutPixel(char x, char y, Color_t color)
     m_canvas[XY_TO_LINEAR(x,y)] = color;
 }
 
-Color_t Canvas::GetPixel(char x, char y)
+Color_t Canvas :: GetPixel
+(
+    char                                            x,
+    char                                            y
+)
 {
     // Ex:
     // width = 14, height = 12
@@ -204,7 +223,7 @@ Color_t Canvas::GetPixel(char x, char y)
 }
 
 
-inline Color_t* Canvas::GetCanvas()
+inline Color_t * Canvas :: GetCanvas()
 {
     return m_canvas;
 }
