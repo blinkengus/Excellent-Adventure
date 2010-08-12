@@ -12,6 +12,11 @@ static ubyte sin_lut[] =
     127, 152, 176, 198, 217, 233, 245, 252, 255, 252, 245, 233, 217, 198, 176, 152, 127, 102, 78, 56, 37, 21, 9, 2, 0, 2, 9, 21, 37, 56, 78, 102
 };
 
+static ubyte colorwheel_lut[] =
+{
+    
+};
+
 
 float dist(float x1, float y1, float x2, float y2)
 {

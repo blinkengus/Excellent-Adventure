@@ -4,6 +4,7 @@
 
 
 int Spotlight(Canvas *c, char mode);
+int Pinwheel(Canvas *c, char mode);
 
 
 #endif

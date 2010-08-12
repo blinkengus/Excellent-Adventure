@@ -27,3 +27,7 @@ int Spotlight(Canvas *c, char mode)
     
     step++;
 }
+
+int Pinwheel(Canvas *c, char mode)
+{
+}
