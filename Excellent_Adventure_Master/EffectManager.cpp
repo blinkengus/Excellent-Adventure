@@ -1,6 +1,5 @@
 #include <TimerOne.h>
 #include "EffectManager.h"
-//#include "TimerOne.h"
 
 
 EffectManager::EffectManager(long periodMicroSeconds)

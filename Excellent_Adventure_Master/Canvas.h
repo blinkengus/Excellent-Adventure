@@ -1,7 +1,8 @@
 #ifndef _CANVAS_H
 #define _CANVAS_H
 
-//#define USE_UART
+// Enable for Simulator
+#define USE_UART
 
 //#define BENCHMARK
 
@@ -67,7 +68,7 @@
 
 #define ADDR_ALL_PIXELS 0
 
-typedef unsigned int    Color_t;
+typedef unsigned int Color_t;
 
 class Canvas
 {

@@ -7,7 +7,7 @@
 
 // A negative 1 indicates that the entry should be skipped.
 
-static char panelAddresses[] = 
+static char panelAddresses[] =
 {
     10,     12,  13,    15,  16,    18,
     19,     21,  22,    24,  25,    27,
@@ -20,12 +20,12 @@ static char panelAddresses[] =
     82,     84,  85,    87,  88,    90,
     91,     93,  94,    96,  97,    99
 };
-    
+
 
 
 /*
-extern "C" 
-{ 
+extern "C"
+{
 #include "utility/twi.h"  // from Wire library, so we can do bus scanning
 }
 */
@@ -46,7 +46,7 @@ void Canvas :: Destroy()
     free(m_canvas);
 }
 
-void Canvas :: InitPanels ()
+void Canvas::InitPanels()
 {
 
 #ifdef BLINKM_PLUGGED_INTO_ARDUINO
@@ -67,14 +67,14 @@ void Canvas :: InitPanels ()
     // BlinkM_stopScript(0)
     Wire.beginTransmission(ADDR_ALL_PIXELS);
     Wire.send('o');
-    Wire.endTransmission();  
+    Wire.endTransmission();
 
     // Set a fade speed
     // BlinkM_setFadeSpeed(0, 50);
     Wire.beginTransmission(ADDR_ALL_PIXELS);
     Wire.send('f');
     Wire.send(50); // Fade speed
-    Wire.endTransmission();  
+    Wire.endTransmission();
 
     // Set color to fade to (black):
     Wire.beginTransmission(ADDR_ALL_PIXELS);
@@ -83,11 +83,9 @@ void Canvas :: InitPanels ()
     Wire.send(0);
     Wire.send(0);
     Wire.endTransmission();
-
-    
 }
 
-void Canvas :: BlitToPanels()
+void Canvas::BlitToPanels()
 {
 
 #ifdef USE_UART
@@ -98,15 +96,12 @@ void Canvas :: BlitToPanels()
 #endif
 #endif
 #ifdef USE_UART
-
     // This is a sync frame:
-
     RGB[0] = RGB[1] = RGB[2] = RGB[3] = 255;
     Serial.write(RGB, 4);
-
 #endif
 
-#ifdef BENCHMARK    
+#ifdef BENCHMARK
     RGB[3] = 253;
     Serial.write(RGB, 4);
 #endif
@@ -114,19 +109,14 @@ void Canvas :: BlitToPanels()
     // Obtain the first address of our panels:
     char *addr = &panelAddresses[0];
 
-    for (char y = 0; y < CANVAS_HEIGHT; y++)
-    {
+    for(char y = 0; y < CANVAS_HEIGHT; y++){
         //memory = (canvas + (y << widthShift));
         char x = 0;
-        while (x < CANVAS_WIDTH)
-        {
+        while (x < CANVAS_WIDTH){
             // We skip any addresses that are < 0, saving processing.
-            if (*addr >= 0)
-            {
-
+            if(*addr >= 0){
                 Color_t color = GetPixel(x, y);
-                if (IS_BRIGHT(color))
-                {
+                if(IS_BRIGHT(color)){
 #ifdef USE_UART
                     RGB[0] = RED256_B(color);
                     RGB[1] = GREEN256_B(color);
@@ -136,14 +126,15 @@ void Canvas :: BlitToPanels()
 #else
                     // Set color immediately:
                     Wire.beginTransmission((uint8_t)(*addr));
-                    Wire.send ('n');
-                    Wire.send (RED256_B(color));
-                    Wire.send (GREEN256_B(color));
-                    Wire.send (BLUE256_B(color));
+                    Wire.send('n');
+                    Wire.send(RED256_B(color));
+                    Wire.send(GREEN256_B(color));
+                    Wire.send(BLUE256_B(color));
                     Wire.endTransmission();
                     //delay(100);
 #endif
-                } else {
+                }
+                else{
 #ifdef USE_UART
                     RGB[0] = RED256(color);
                     RGB[1] = GREEN256(color);
@@ -152,12 +143,11 @@ void Canvas :: BlitToPanels()
                     Serial.write(RGB, 4);
 #else
                     // Set color immediately:
-                    
                     Wire.beginTransmission((uint8_t)(*addr));
-                    Wire.send ('n');
-                    Wire.send (RED256(color));
-                    Wire.send (GREEN256(color));
-                    Wire.send (BLUE256(color));
+                    Wire.send('n');
+                    Wire.send(RED256(color));
+                    Wire.send(GREEN256(color));
+                    Wire.send(BLUE256(color));
                     Wire.endTransmission();
 #endif
                 }
@@ -166,16 +156,13 @@ void Canvas :: BlitToPanels()
             x++;
         }
     }
-#ifdef BENCHMARK    
+#ifdef BENCHMARK
     RGB[3] = 254;
     Serial.write(RGB, 4);
 #endif
 }
 
-void Canvas :: Clear
-(
-    Color_t                                         color
-)
+void Canvas::Clear(Color_t color)
 {
     memset(m_canvas, color, sizeof(Color_t)*CANVAS_MEMORY_SIZE);
 
@@ -187,7 +174,7 @@ void Canvas :: Clear
     //} while (memory != canvasEnd);
 }
 
-void Canvas :: PutPixel
+void Canvas::PutPixel
 (
     char                                            x,
     char                                            y,
@@ -227,5 +214,3 @@ inline Color_t * Canvas :: GetCanvas()
 {
     return m_canvas;
 }
-
-

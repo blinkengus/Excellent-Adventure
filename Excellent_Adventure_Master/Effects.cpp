@@ -1,6 +1,6 @@
 #include "Effects.h"
+#include "EffectUtils.h"
 #include "Canvas.h"
-#include "Util.h"
 
 int SimpleColumns(Canvas *c, char mode)
 {
@@ -79,7 +79,7 @@ int Spotlight(Canvas *c, char mode)
     float blx = sin_lut[MOD32(step + 24)] / 255.0f * CANVAS_WM1;
     float bly = sin_lut[MOD32(step + 16)] / 255.0f * CANVAS_HM1;
     
-    ubyte r, g, b;
+    uint8_t r, g, b;
     for(char y = 0; y < CANVAS_HEIGHT; y++){
         for(char x = 0; x < CANVAS_WIDTH; x++){
             r = max_f(0.0f, 4.0f - dist(x, y, rlx, rly)) * 0x1F;
