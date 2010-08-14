@@ -51,20 +51,6 @@ static final float PANEL_YOFFSET =
 static final int ANIMATION_MOUSE  = 0;
 static final int ANIMATION_SERIAL = 1;
 
-static final int pixelAddresses[] =
-{
-    10,    12,  13,    15,  16,    18,
-    19,    21,  22,    24,  25,    27,
-    28,    30,  31,    33,  34,    36,
-    37,    39,  40,    -1,  -1,    45,
-    46,    48,  49,    -1,  -1,    54,
-    55,    -1,  -1,    -1,  -1,    63,
-    64,    -1,  -1,    -1,  -1,    72,
-    73,    -1,  -1,    78,  79,    81,
-    82,    84,  85,    87,  88,    90,
-    91,    93,  94,    96,  97,    99
-};
-
 int animationIndex = ANIMATION_SERIAL;
 
 

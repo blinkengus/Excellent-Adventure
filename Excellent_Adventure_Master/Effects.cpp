@@ -25,7 +25,6 @@ int SimpleColumns(Canvas *c, char mode)
         n = (n+1) & 0x1F;
     }
 
-
     for (char y = 0; y < CANVAS_HEIGHT; y++)
     {
         // Create ascending values
@@ -94,4 +93,7 @@ int Spotlight(Canvas *c, char mode)
 
 int Pinwheel(Canvas *c, char mode)
 {
+    static int step = 0;
+    
+    
 }
