@@ -4,8 +4,6 @@
 #include "Spectrum.h"
 #include "Util.h"
 
-
-
 int SimpleSpectrum(Canvas *c, EffectManager *em, char mode)
 {
     static unsigned n = 0;
@@ -87,9 +85,6 @@ int SimpleSpectrum(Canvas *c, EffectManager *em, char mode)
     }
     return 1;
 }
-
-
-
 
 int SimpleColumns(Canvas *c, EffectManager *em, char mode)
 {
@@ -175,7 +170,7 @@ int Spotlight(Canvas *c, EffectManager *em, char mode)
             r = max_f(0.0f, 4.0f - dist(x, y, rlx, rly)) * 0x1F;
             g = max_f(0.0f, 3.0f - dist(x, y, glx, gly)) * 0x1F;
             b = max_f(0.0f, 4.0f - dist(x, y, blx, bly)) * 0x1F;
-            c->PutPixel(x, y, COLOR_B(min_ub(r, 0x1F), min_ub(g, 0x1f), min_ub(b, 0x1f)));
+            c->PutPixel(x, y, COLOR_B(min_ub(r, 0x1F), min_ub(g, 0x1F), min_ub(b, 0x1F)));
         }
     }
     
@@ -190,8 +185,6 @@ int CheckerBoard(Canvas *c, EffectManager *em, char mode)
     static unsigned char offsetX = 0;
 
     static unsigned char offsetY = 0;
-
-    
 
     static Channel_t n = 0;
     static char currentMode = -1;

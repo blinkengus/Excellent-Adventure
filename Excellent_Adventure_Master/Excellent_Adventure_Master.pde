@@ -67,9 +67,6 @@
 #define EFFECT_CALLBACK_MS      20
 #define BLINK_MS                1000
 
-//
-//  
-//              
 //          +--------+   +--------+ 
 //  Tip ----| SLIC_L |   | SLIC_L |
 //          |        |   |        |
@@ -83,7 +80,6 @@
 //          |                     |
 //          |                     |
 //          +---------------------+
-//
 
 // L = Local; R = Remote
 
@@ -104,10 +100,10 @@ SLICControl SC;
 
 Effect effects[] =
 { 
-    {&SimpleSpectrum, 0}
+//    {&SimpleSpectrum, 0}
 //    {&CheckerBoard, 0}
 //    {&SimpleColumns, 0}
-//    {&Spotlight, 0}
+    {&Spotlight, 0}
 //,   {&SimpleColumns, 0}
 };
 
