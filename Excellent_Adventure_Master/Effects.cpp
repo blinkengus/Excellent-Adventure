@@ -1,8 +1,8 @@
 #include "EffectManager.h"
 #include "Effects.h"
+#include "EffectUtils.h"
 #include "Canvas.h"
 #include "Spectrum.h"
-#include "Util.h"
 
 int SimpleSpectrum(Canvas *c, EffectManager *em, char mode)
 {
@@ -83,6 +83,36 @@ int SimpleSpectrum(Canvas *c, EffectManager *em, char mode)
             c->PutPixel(x,y, (bands[x] > high) ? color : 0);
         }
     }
+    return 1;
+}
+
+int WarpSpectrum(Canvas *c, EffectManager *em, char mode)
+{
+    static uint8_t pos[CANVAS_WIDTH];
+    
+    static char currentMode = -1;
+    if(mode != currentMode){  // performed only once
+        switch(mode){
+            case EFFECTMODE_INTRO:
+                for(uint8_t x = CANVAS_WIDTH; --x >= 0;)
+                    pos[x] = 0;
+                break;
+        }
+        currentMode = mode;
+    }
+    else{  // step
+        unsigned short *spectrum = em->GetSpectrum();
+        for(uint8_t x = 0; x < CANVAS_WIDTH; x++){
+            pos[x] = min_ub(10, spectrum[x] / 100);
+        }
+    }
+
+    for(uint8_t x = 0; x < CANVAS_WIDTH; x++){
+        for(uint8_t y = 0; y < CANVAS_HEIGHT; y++){
+            c->PutPixel(x, y, y < pos[x] ? COLOR_B(0x1f,0,0) : COLOR_B(0,0,0));
+        }
+    }
+    
     return 1;
 }
 

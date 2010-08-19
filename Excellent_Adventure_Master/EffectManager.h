@@ -13,7 +13,6 @@
 #define EFFECTMODE_OUTRO            2
 
 
-
 // Idle -> Ring -> 
 
 
@@ -33,8 +32,6 @@ struct Effect
                                                     );
     int                                             flags;
 };
-
-
 
 
 class EffectManager
@@ -59,7 +56,6 @@ public:
     EffectManager
     (
         long                                            periodMicroSeconds
-
     );
     ~EffectManager();
 
@@ -88,7 +84,6 @@ public:
     unsigned short * GetSpectrum();
 
     void Callback();
-    
 };
 
 //extern void ISRGlobal();

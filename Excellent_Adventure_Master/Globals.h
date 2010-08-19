@@ -9,7 +9,6 @@
 #define USE_UART
 
 
-
 #define I2C_RATE                100000
 #define SERIAL_RATE             38400
 
@@ -21,7 +20,6 @@
 // If we're connected to a MSGEQ7 spectrum analysis chip, otherwise use the
 // software spectrum analysis.
 #define SPECTRUM_USE_HARDWARE
-
 
 
 /////////////////////////////////////////////////////////////////////////////
