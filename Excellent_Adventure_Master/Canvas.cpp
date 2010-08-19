@@ -126,7 +126,7 @@ void Canvas::BlitToPanels()
 #else
                     // Set color immediately:
                     Wire.beginTransmission((uint8_t)(*addr));
-                    Wire.send('n');
+                    Wire.send('c');
                     Wire.send(RED256_B(color));
                     Wire.send(GREEN256_B(color));
                     Wire.send(BLUE256_B(color));
@@ -144,7 +144,7 @@ void Canvas::BlitToPanels()
 #else
                     // Set color immediately:
                     Wire.beginTransmission((uint8_t)(*addr));
-                    Wire.send('n');
+                    Wire.send('c');
                     Wire.send(RED256(color));
                     Wire.send(GREEN256(color));
                     Wire.send(BLUE256(color));
@@ -174,12 +174,7 @@ void Canvas::Clear(Color_t color)
     //} while (memory != canvasEnd);
 }
 
-void Canvas::PutPixel
-(
-    char                                            x,
-    char                                            y,
-    Color_t                                         color
-)
+void Canvas::PutPixel(char x, char y, Color_t color)
 {
     // Ex:
     // width = 14, height = 12
@@ -192,11 +187,7 @@ void Canvas::PutPixel
     m_canvas[XY_TO_LINEAR(x,y)] = color;
 }
 
-Color_t Canvas :: GetPixel
-(
-    char                                            x,
-    char                                            y
-)
+Color_t Canvas::GetPixel(char x, char y)
 {
     // Ex:
     // width = 14, height = 12
@@ -210,7 +201,7 @@ Color_t Canvas :: GetPixel
 }
 
 
-inline Color_t * Canvas :: GetCanvas()
+inline Color_t * Canvas::GetCanvas()
 {
     return m_canvas;
 }

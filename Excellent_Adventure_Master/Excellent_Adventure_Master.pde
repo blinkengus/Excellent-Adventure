@@ -31,8 +31,8 @@
 #define DEBUG
 
 #include "EffectManager.h"
-#include "Slic.h"
 #include "Effects.h"
+#include "Slic.h"
 
 // Blinks an LED on the Arduino to indicate operation
 #define BLINK_ENABLED
@@ -97,8 +97,7 @@ SLICControl SC;
 
 Effect effects[] =
 {
-    {&Spotlight, 0}
-,   {&SimpleColumns, 0}
+    {&MatrixRain, 0}
 };
 
 
@@ -178,8 +177,7 @@ void loop()
     switch (state)
     {
     case STATE_IDLE:
-        if (offHookLocal || offHookRemote)
-        {
+        if(offHookLocal || offHookRemote){
             // Audio.PlayDialTone();
             state = STATE_RING;
             if (offHookLocal)
@@ -191,8 +189,7 @@ void loop()
         }
         break;
     case STATE_RING:
-        if (offHookLocal && offHookRemote)
-        {
+        if(offHookLocal && offHookRemote){
             // Both phones picked up.  Start the call!
             // Audio.StopDialTone();
             state = STATE_CALL;
@@ -202,8 +199,7 @@ void loop()
 
             callTime = time1;
         }
-        else if (!offHookLocal && !offHookRemote)
-        {
+        else if(!offHookLocal && !offHookRemote){
             // Hangup, both receivers were hung up.
             // Audio.StopDialTone();
             state = STATE_IDLE;
@@ -213,17 +209,15 @@ void loop()
 
         break;
     case STATE_CALL:
-        if (offHookLocal && offHookRemote){
+        if(offHookLocal && offHookRemote){
             // Call is in progress
             // If we want to resume the call:
-            if (callEnded)
-            {
+            if(callEnded){
                 // If we resumed our call after one party hung up.
                 //Audio.StopDialTone();
                 callEnded = false;
             }
-            if ((time1 - callTime) > MAX_CALL_DURATION_MS)
-            {
+            if((time1 - callTime) > MAX_CALL_DURATION_MS){
                 // Force a disconnection, i.e. cut the audio connection, and
                 // inject our own message.
             }
@@ -253,22 +247,20 @@ void loop()
         }
         break;
     case STATE_CALLENDED:
-        if ((time1 - callTime) > MAX_CALLEND_WAIT_MS){
+        if((time1 - callTime) > MAX_CALLEND_WAIT_MS){
             state = STATE_IDLE;
         }
         break;
 
     default:
         break;
-
     };
-    if ((time1 - time0) > EFFECT_CALLBACK_MS)
-    {
+    if((time1 - time0) > EFFECT_CALLBACK_MS){
         time0 = time1;
         EM.Callback();
     }
 #ifdef BLINK_ENABLED
-    if ((time1 - blinkTime0) > BLINK_MS){
+    if((time1 - blinkTime0) > BLINK_MS){
         blinkTime0 = time1;
         blinkMode = !blinkMode;
         digitalWrite(13, blinkMode ? HIGH : LOW);

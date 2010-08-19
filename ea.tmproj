@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>Excellent_Adventure_Master/Util.h</string>
+	<string>Excellent_Adventure_Master/Effects.cpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -16,6 +16,16 @@
 			<key>sourceDirectory</key>
 			<string>Excellent_Adventure_Master</string>
 		</dict>
+		<dict>
+			<key>expanded</key>
+			<true/>
+			<key>name</key>
+			<string>Excellent_Adventure_Sim</string>
+			<key>regexFolderFilter</key>
+			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>sourceDirectory</key>
+			<string>Excellent_Adventure_Sim</string>
+		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>246</integer>
@@ -26,28 +36,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>2</integer>
+				<integer>15</integer>
 				<key>line</key>
-				<integer>5</integer>
+				<integer>75</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>19</integer>
+			<integer>50</integer>
 		</dict>
 		<key>Excellent_Adventure_Master/Canvas.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>25</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>67</integer>
+				<integer>4</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>47</integer>
+			<integer>0</integer>
 		</dict>
 		<key>Excellent_Adventure_Master/EffectManager.cpp</key>
 		<dict>
@@ -56,7 +66,7 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>3</integer>
+				<integer>34</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -68,9 +78,23 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>65</integer>
+				<integer>50</integer>
 				<key>line</key>
-				<integer>17</integer>
+				<integer>23</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>31</integer>
+		</dict>
+		<key>Excellent_Adventure_Master/EffectUtils.h</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>15</integer>
+				<key>line</key>
+				<integer>42</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -82,23 +106,23 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>2</integer>
+				<integer>27</integer>
 				<key>line</key>
-				<integer>76</integer>
+				<integer>121</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>92</integer>
 		</dict>
 		<key>Excellent_Adventure_Master/Effects.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>35</integer>
+				<integer>10</integer>
 				<key>line</key>
-				<integer>7</integer>
+				<integer>8</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -110,23 +134,23 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>10</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>255</integer>
+				<integer>81</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>112</integer>
 		</dict>
-		<key>Excellent_Adventure_Master/Util.h</key>
+		<key>Excellent_Adventure_Master/Slic.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>24</integer>
+				<integer>18</integer>
 				<key>line</key>
-				<integer>10</integer>
+				<integer>9</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -139,15 +163,16 @@
 		<string>Excellent_Adventure_Master/Excellent_Adventure_Master.pde</string>
 		<string>Excellent_Adventure_Master/Effects.h</string>
 		<string>Excellent_Adventure_Master/Effects.cpp</string>
+		<string>Excellent_Adventure_Master/EffectUtils.h</string>
 		<string>Excellent_Adventure_Master/Canvas.h</string>
 		<string>Excellent_Adventure_Master/Canvas.cpp</string>
 		<string>Excellent_Adventure_Master/EffectManager.h</string>
 		<string>Excellent_Adventure_Master/EffectManager.cpp</string>
-		<string>Excellent_Adventure_Master/Util.h</string>
+		<string>Excellent_Adventure_Master/Slic.h</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>
 	<key>windowFrame</key>
-	<string>{{71, 51}, {1276, 827}}</string>
+	<string>{{74, 51}, {1303, 827}}</string>
 </dict>
 </plist>

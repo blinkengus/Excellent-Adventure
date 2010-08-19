@@ -66,10 +66,7 @@ public:
         char                                            sizeCall
     );
 
-    void SetMode
-    (
-        char                                            mode
-    );
+    void SetMode(char mode);
 
     void InstallAnimator();
 

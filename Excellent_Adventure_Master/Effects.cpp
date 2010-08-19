@@ -94,6 +94,49 @@ int Spotlight(Canvas *c, char mode)
 int Pinwheel(Canvas *c, char mode)
 {
     static int step = 0;
+    //static int sin_speed_step = 0;
     
+    static int ctrx = (CANVAS_WM1 * 100) / 2;
+    static int ctry = (CANVAS_HM1 * 100) / 2;
     
+    for(char y = 0; y < CANVAS_HEIGHT; y++){
+        for(char x = 0; x < CANVAS_WIDTH; x++){
+            int angle = MOD32(int(atan2(y * 100 - ctry, x * 100 - ctrx) * TWO_PI_TO_32) + step);
+            //int bri = sin_lut[MOD32(dist(x, y, rlx, rly) + step);
+            c->PutPixel(x, y, colorwheel_lut[angle]);// * bri);
+        }
+    }
+    
+    step += 2;
 }
+
+int MatrixRain(Canvas *c, char mode)
+{
+    static uint8_t pos[] = { CANVAS_HEIGHT, CANVAS_HEIGHT, CANVAS_HEIGHT, CANVAS_HEIGHT, CANVAS_HEIGHT, CANVAS_HEIGHT };
+    static uint8_t vel[] = { 0, 0, 0, 0, 0, 0 };
+    
+    for(char x = 0; x < 6; x++){
+        pos[x] += vel[x];
+        if(pos[x] >= CANVAS_HEIGHT){
+            pos[x] = 0;
+            vel[x] = x % 3;
+        }
+        c->PutPixel(x, pos[x], COLOR_B(0, 31, 0));
+    }
+    
+    for(char y = 0; y < CANVAS_HEIGHT; y++){
+        for(char x = 0; x < CANVAS_WIDTH; x++){
+            Color_t px = c->GetPixel(x, y);
+            c->PutPixel(x, y, COLOR_B(max_ub(0, RED(px) - 2), max_ub(0, GREEN(px) - 2), max_ub(0, BLUE(px) - 2)));
+        }
+    }
+}
+
+
+/*
+Ideas
+- Matrix Mode (Horiz + Vertical)
+- More Single Color Stuff
+- Strobing
+- Overhead Flicker
+*/

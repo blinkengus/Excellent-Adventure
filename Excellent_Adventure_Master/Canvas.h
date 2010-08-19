@@ -25,24 +25,19 @@
 #define UNSETBRIGHT(C)  ((C) &= ~(1 << 15))
 
 
-// 0b01111100 --> 0x7C
-
 // Color to scaled RGB 256 values
-
+// 0b01111100 --> 0x7C
 #define RED256(C)       (uint8_t)((((C) << 2) & 0x7C))
 #define GREEN256(C)     (uint8_t)((((C) >> 3) & 0x7C))
 #define BLUE256(C)      (uint8_t)((((C) >> 8) & 0x7C))
 
 // Bright versions:
-
 // 0b11111000 --> 0xF8
-
 #define RED256_B(C)     (uint8_t)(((C) << 3) & 0xF8)
 #define GREEN256_B(C)   (uint8_t)(((C) >> 2) & 0xF8)
 #define BLUE256_B(C)    (uint8_t)(((C) >> 7) & 0xF8)
 
 // Raw 5-bit values
-
 #define RED(C)          (uint8_t)(((C))       & 0x1F)
 #define GREEN(C)        (uint8_t)(((C) >> 5)  & 0x1F)
 #define BLUE(C)         (uint8_t)(((C) >> 10) & 0x1F)
@@ -68,7 +63,9 @@
 
 #define ADDR_ALL_PIXELS 0
 
+
 typedef unsigned int Color_t;
+
 
 class Canvas
 {
