@@ -1,10 +1,9 @@
 /*
-   ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
-   /\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
-   \ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
-   \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
-   \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
-
+    ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______
+   /\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \
+   \ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/
+    \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\
+     \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/
 
    ---What?---
    Combined "master" firmware for Excellent Adventure.
@@ -15,9 +14,10 @@
    www.carbonworkshop.com/bm10
 
    ---Who?---
-   Chris Condrat - chris@g6net.com
-   Gustavo Huber - gush@carbonworkshop.com
-   Daniel Massey - pichiste@gmail.com
+   Chris Condrat  - chris@g6net.com
+   Gustavo Huber  - gush@carbonworkshop.com
+   Daniel Massey  - pichiste@gmail.com
+   Ryan Alexander - ryan@onecm.com
 
    ---When?---
    June 11, 2010

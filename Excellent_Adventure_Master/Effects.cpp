@@ -98,8 +98,8 @@ int WarpSpectrum(Canvas *c, EffectManager *em, char mode)
             case EFFECTMODE_INTRO:
                 for(uint8_t x = 0; x < CANVAS_WIDTH; x++){
                     pos[x] = CANVAS_HM1;
-                    for(uint8_t y = 0; y < CANVAS_HEIGHT; y++)
-                        c->PutPixel(x, y, 0);
+                    // for(uint8_t y = 0; y < CANVAS_HEIGHT; y++)
+                    //     c->PutPixel(x, y, 0);
                 }
                 break;
         }
