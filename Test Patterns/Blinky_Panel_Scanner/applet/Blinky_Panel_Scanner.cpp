@@ -13,14 +13,24 @@
  *
  */
 
+// Adapted from
+//http://code.google.com/p/arduino/issues/attachmentText?id=28&aid=-2270486327270254489&name=Wire.diff&token=9f437f2c4975f2eb605ac29648a7885e
 
 #include "Wire.h"
 #include "BlinkM_funcs.h"
+
+//fast I2C defs
+#define I2C_FAST 100000L
+#define sbi(port, bit) (port) |= (1 << (bit))
+#define cbi(port, bit) (port) &= ~(1 << (bit))
+
 //globals
 #include "WProgram.h"
+long unsigned int twi_setSpeed(long unsigned int bitsPerSecond);
 void setup();
 void loop();
 void panelstepper();
+void speedypanelstepper();
 void rowchaser();
 void columnchaser();
 void columnspin();
@@ -46,15 +56,19 @@ void cyanstrobe();
 void magentastrobe();
 void yellowstrobe();
 void colorstrobe();
-const int commandrepeats = 5; // how many times to repeat each I2C command to avoid dropped packets (6 seems to be the sweet spot)
+const int commandrepeats = 1; // how many times to repeat each I2C command to avoid dropped packets (6 seems to be the sweet spot)
 const int firstPanel = 10;
 const int lastPanel = 99;
 const int columncount = 9;
 const int rowcount = 10;
-const int maxwhite = 230; //highest possible value when setting R,G,B equal each other (limit to 230 when using 10A power supply)
-const int mincolor = 100; // if colors seem too dim too often, mess with this
-const int maxcolor = 240; // highest possible value when setting a color (limit to 240 when using 10A power supply)
+const int maxwhite = 235; //highest possible value when setting R,G,B equal each other (limit to 230 when using 10A power supply, 215 when using deep-cycle 6v battery [225 with a supercap pack])
+const int mincolor = 0; // if colors seem too dim too often, mess with this
+const int maxcolor = 255; // highest possible value when setting a color (limit to 240 when using 10A power supply, 235 when using a 6v deep cycle battery [245 with a supercap pack])
 const int stepcycles = 1; // how many times each effect runs
+
+//for fullspeedpanelstepper() mode
+const int speedystepcycles = 10; //how many times to loop through all 100 panels on the speed test
+const int speedystepdelay = 0; //leave at 0 for speed test
 
 //for rowchaser() and columnchaser() modes
 const int chasedelay = 75;
@@ -93,14 +107,36 @@ const int randomcolorcount = 10;
 const int sweepdelay = randomcolorcount;
 
 //for colorfades() mode
-const int fadedelay = 1500;
-const int fadespeed = 3;
+const int fadedelay = 250; //(1500 smooth and slow)
+const int fadespeed = 6;  //(3 smooth and slow)
 
 //vars
 int r = 0;
 int b = 0;
 int g = 0;
 int commandrepeatcounter = 0;
+
+//FAST I2C
+long unsigned int twi_setSpeed(long unsigned int bitsPerSecond)
+{
+ /* twi bit rate formula from atmega128 manual pg 204
+ SCL Frequency = CPU Clock Frequency / (16 + (TWBR * 2 * prescale))
+ NOTE: TWBR should be 10 or higher for master mode
+ It is 72 for a 16mhz Wiring board with 100kHz TWI */
+
+ // calculate the former bit rate to return
+ uint8_t prescale = 1;
+ if (TWSR & _BV(TWPS0)) { prescale = prescale << 2; }
+ if (TWSR & _BV(TWPS1)) { prescale = prescale << 4; }
+ long unsigned int formerSpeed = (F_CPU / (16 + (TWBR * 2 * prescale)));
+
+ // initialize twi prescaler and bit rate
+ cbi(TWSR, TWPS0);  // both bits cleared yields prescaler value of 1
+ cbi(TWSR, TWPS1);
+ TWBR = ((F_CPU / bitsPerSecond) - 16) / 2;
+
+ return formerSpeed;
+ }
 
 void setup()
 {
@@ -118,15 +154,16 @@ void setup()
 
 
 void loop() {
-  panelstepper();
-  rowchaser();
-  columnchaser();
-  rowsweep();
-  columnspin();
+  //panelstepper();
+  //speedypanelstepper();
+  //rowchaser();
+  //columnchaser();
+  //rowsweep();
+  //columnspin();
   corkscrew();
-  colorsweeps();
-  colorfades();
-  strobemodes();
+  //colorsweeps();
+  //colorfades();
+  //strobemodes();
   //delay(100);
 }
 
@@ -165,6 +202,46 @@ void panelstepper(){
       //      Serial.print(" / "); 
       //      Serial.println(b);
       delay(stepdelay);
+
+    }
+  }
+}
+
+void speedypanelstepper(){
+  for(int n = 0; n < speedystepcycles; n++){
+    r = random(mincolor, maxcolor);
+    g = random(mincolor, maxcolor);
+    b = random(mincolor, maxcolor);
+    delay(speedystepdelay);
+    for(int i = firstPanel; i < (lastPanel+1); i++){
+      for(commandrepeatcounter = 0; commandrepeatcounter < commandrepeats; commandrepeatcounter++){
+        BlinkM_setRGB(i, (byte)r, (byte)g, (byte)b);
+        //BlinkM_setFadeSpeed(i, stepfadespeed);
+        //BlinkM_fadeToRGB(i, (byte)r, (byte)g, (byte)b);
+      }
+      //      Serial.print(i); 
+      //      Serial.print(":   ");
+      //      Serial.print(r); 
+      //     Serial.print(" / "); 
+      //      Serial.print(g); 
+      //      Serial.print(" / "); 
+      //      Serial.println(b);
+      delay(speedystepdelay);
+    }
+    for (int j = firstPanel; j < (lastPanel+1); j++){
+      for(commandrepeatcounter = 0; commandrepeatcounter < commandrepeats; commandrepeatcounter++){
+        BlinkM_setRGB(j, 0x00, 0x00, 0x00);
+        //BlinkM_setFadeSpeed(j, stepfadespeed);
+        //BlinkM_fadeToRGB(j, 0x00, 0x00, 0x00);
+      }
+      //      Serial.print(j); 
+      //      Serial.print(":   ");
+      //      Serial.print(r); 
+      //      Serial.print(" / "); 
+      //      Serial.print(g); 
+      //      Serial.print(" / "); 
+      //      Serial.println(b);
+      delay(speedystepdelay);
 
     }
   }

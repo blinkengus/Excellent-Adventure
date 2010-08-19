@@ -1,8 +1,81 @@
+/*
+ ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
+/\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
+\ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
+ \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
+  \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
+
+
+                                                                                                     
+    ---What?---
+    Master controller firmware for Excellent Adventure phone booths.
+    See www.carbonworkshop.com/bm10 for project details.
+      Monitors:
+        [ADD ME]+Ambient Light
+        +Switch Hook state of remote booth
+        [ADD ME]+Switch Hook state of local booth
+        +Audio signal from remote booth
+        +Others?
+      Controls:
+        +LED Panels via I2C bus (using BlinkM command format)
+        [ADD ME]+Warm White LED Panels via a single PWM pin
+        [ADD ME]+UV LED Panels via a single PWM pin
+        [ADD ME]+Red laser via a single digital pin
+        [ADD ME]+Green laser via a single digital pin
+        [ADD ME]+Local SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
+        +Remote SLIC Enable, Ring Mode, and Forward/Reverse pins via 3 digital pins
+        
+    ---Why?---
+    Excellent Adventure is an honorarium art installation to be deployed
+    at Burning Man 2010. The project visualizes the audio signal of an
+    incoming call on each of two interconnected booths on the respective
+    booth's array of over 500 controlled ultra-bright RGB, warm white, 
+    and UV LEDs.
+    
+    ---Who?---
+    Daniel Massey - pichiste@gmail.com
+    Ryan Alexander - scloopy@gmail.com
+    Gustavo Huber - gush@carbonworkshop.com
+    Gabriel Dunne - gdunne@quilime.com
+    Chris C   -  bionicbadger@gmail.com
+  
+    ---When?---
+                                                                                                 
+*/
+
 #include <math.h>
 #include "Wire.h" 
 #include "BlinkM_funcs.h" 
 
 ///////////////////////////////////////////
+
+
+//pin config
+  //Analog 0: LIGHTSENSOR
+  //Analog 1: SL1_VOUT
+  //Analog 2: SL2_VOUT
+  //Analog 3:
+  //Analog 4: Remapped to I2C SDA for LED Panels
+  //Analog 5: Remapped to I2C SCK for LED Panels
+  //
+  //AREF:
+  //GND:
+  //D 13: SLI1+2 Power down
+  //D 12: SL2_SHK
+  //D 11 (PWM): M4
+  //D 10 (PWM): M3
+  //D 9 (PWM): M2
+  //D 8: SL2_FR
+  //
+//const int   //D 7: SL2_RM
+  //D 6 (PWM): M1
+  //D 5 (PWM):
+  //D 4: SL1_RM
+  //D 3 (PWM): SL1_FR
+  //D 2: SL1_SHK
+  //D 1: Arduino_TX
+  //D 0: Arduino_RX
+
 
 //pin config
 #include "WProgram.h"
@@ -20,12 +93,12 @@ void cl_update();
 void vs_update();
 float lerp(float start, float stop, float amt);
 void processAudio();
-const int audioPin  = 2;
-const int ringPin   = 2;
-const int enablePin = 3;
-const int buttonPin = 4;
-const int switchHookPin = 5;
-const int voltagePin = 12;
+const int audioPin  = 2;  // analog audio input from the Va_OUT pin of SLIC
+const int ringPin   = 2;  // F/R pin from SLIC
+const int enablePin = 3;  // RM pin from SLIC
+const int buttonPin = 4;  // used for testing -- triggers the ring logic pattern
+const int switchHookPin = 5;  // indicates receiver is of hook when HIGH
+const int voltagePin = 12;    // used for testing -- supplies voltage for buttonPin
 
 //ringer vars
 const int ringDelay = 40; //50ms = 20Hz
@@ -37,7 +110,7 @@ const int zeroOffset = 505;
 
 //blinkM addressing vars
 const int  X_COUNT = 6;
-const int  Y_COUNT = 3;
+const int  Y_COUNT = 11;
 const int  NUM_BLINKMS = 18;
 const byte FIRST_BLINKM_ADDR = 5;
 //const int  X_COUNT = 2;
@@ -55,25 +128,45 @@ int state = IDLE;
 
 //animations
 int animationIndex = 0;
-int animationCount = 3;
+int animationCount = 1;
 
 int switchInterval = 700;
-int switchCount = 0;
+int switchCount    = 0;
+
+
+struct LedMode_testCycle
+{
+  void init()
+  {
+  };
+  
+  void step()
+  {
+    for(int y = 0; y < Y_COUNT; y++){ 
+      for(int x = 0; x < X_COUNT; x++){
+        setPixel(x, y, 255, 255, 0);
+      }
+    }
+  };
+} modeTestCycle;
 
 
 ///////////////////////////////////////////
-void setup() {
+void setup()
+{
   Serial.begin(19200);
   initRinger();
   initBlinkM(); 
   defineBlinkMAddresses();
-  initPixelVals();    
+  initPixelVals();
+  state = ACTIVE;
 }
 
 ///////////////////////////////////////////
-void loop() {
-  
-  while(state==IDLE) {
+void loop()
+{
+  while(state == IDLE)
+  {
      //do nothing... except check for ringing  
     if(digitalRead(buttonPin) == HIGH) { /* need to add conditional for whether receiver is on hook */
       state = RINGING;  
@@ -83,8 +176,8 @@ void loop() {
     }    
   }
   
-  while(state==RINGING) {
-    
+  while(state == RINGING)
+  {
     ring();
     delay(ringSpacing);
   
@@ -101,8 +194,8 @@ void loop() {
     delay(ringSpacing);    
   }
   
-  while(state==ACTIVE) {
-    
+  while(state == ACTIVE)
+  {
     processAudio();   
     
 //    int ai = analogRead(audioPin);
@@ -111,9 +204,9 @@ void loop() {
 //    Serial.println(voiceLevel);
       
     //update pixels here
-    switch(animationIndex) {
-      case(0): 
-        vl_update();
+    switch(animationIndex){
+      case(0):
+        modeTestCycle.step();
         break;
       case(1):
         cl_update();
@@ -141,21 +234,16 @@ void loop() {
     //unimplemented...
     
     switchCount++;
-    if(switchCount>=switchInterval) {
+    if(switchCount >= switchInterval){
       switchCount = 0;
-      animationIndex++;
-      if(animationIndex>=animationCount) {
-        animationIndex = 0;  
-      }
+      animationIndex = (animationIndex + 1) % animationCount;
     }
   }
-  
-  
-  
 }
 
 ///////////////////////////////////////////
-void ring() {
+void ring()
+{
   for(int i = 0; i < 5; i++) {
     //for(int ringDelay = 100; ringDelay>10; ringDelay=ringDelay-10){
     digitalWrite(ringPin, LOW);
@@ -168,11 +256,11 @@ void ring() {
     Serial.print(" ");
     //} 
   }
-  
 }
 
 ///////////////////////////////////////////
-void initBlinkM() {
+void initBlinkM()
+{
   BlinkM_begin();
   BlinkM_stopScript(0);  
   BlinkM_setRGB(0, 0x00, 0x00, 0x00);
@@ -180,34 +268,15 @@ void initBlinkM() {
 
 ///////////////////////////////////////////
 // Maps the blinkM addresses to x, y coordinates
-void defineBlinkMAddresses() {
+void defineBlinkMAddresses()
+{
   byte addr = FIRST_BLINKM_ADDR;
-  for(int x=0; x<X_COUNT; x++) {
-    for(int y=Y_COUNT-1; y>=0; y--) {
+  for(int x = 0; x < X_COUNT; x++){
+    for(int y = Y_COUNT - 1; y >= 0; y--){
       addresses[x][y] = addr;
-      addr++; 
-    }  
+      addr++;
+    }
   }
-//  addresses[0][0] = 18;
-//  addresses[0][1] = 17;
-//  addresses[0][2] = 16;
-//  addresses[0][3] = 15;
-//  addresses[0][4] = 20;
-//  addresses[0][5] = 19;
-//  addresses[0][6] = 14;
-//  addresses[0][7] = 13;
-//  addresses[0][8] = 12;
-//  addresses[0][9] = 11;
-//  addresses[1][0] = 8;
-//  addresses[1][1] = 7;
-//  addresses[1][2] = 6;
-//  addresses[1][3] = 5;
-//  addresses[1][4] = 10;
-//  addresses[1][5] = 9;
-//  addresses[1][6] = 4;
-//  addresses[1][7] = 3;
-//  addresses[1][8] = 2;
-//  addresses[1][9] = 1;
 }
 
 ///////////////////////////////////////////
@@ -222,11 +291,12 @@ void initPixelVals() {
   }  
 }
 
-///////////////////////////////////////////
 
-void sendToBlinkMs() {
-  for(int x=0; x<X_COUNT; x++) {
-    for(int y=0; y<Y_COUNT; y++) {
+///////////////////////////////////////////
+void sendToBlinkMs()
+{
+  for(int x = 0; x < X_COUNT; x++) {
+    for(int y = 0; y < Y_COUNT; y++) {
       byte addr = addresses[x][y];
       BlinkM_setRGB(addr, pixelVals[x][y][0], pixelVals[x][y][1], pixelVals[x][y][2]);
     }  
@@ -234,13 +304,16 @@ void sendToBlinkMs() {
 }
 
 ///////////////////////////////////////////
-void setPixel(int x, int y, byte r, byte g, byte b) {
+void setPixel(int x, int y, byte r, byte g, byte b)
+{
   pixelVals[x][y][0] = r;
   pixelVals[x][y][1] = g;
   pixelVals[x][y][2] = b;  
 }
 
-void initRinger() {
+
+void initRinger()
+{
   pinMode(ringPin, OUTPUT);
   pinMode(enablePin, OUTPUT);
   pinMode(buttonPin, INPUT);
@@ -252,6 +325,27 @@ void initRinger() {
 //  Serial.println("RM LOW LOW LOW LOW LOW");
   analogReference(DEFAULT); /* sets the input range for the audio. should be modified. */
 }
+/*
+ ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
+/\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
+\ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
+ \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
+  \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
+
+
+                                                                                                     
+    ---What?---
+    Visualization modes for Excellent Adventure booths.
+    
+    ---Why?---
+    See Excellent Adventure Master
+      
+    ---Who?---
+    Daniel Massey - pichiste@gmail.com
+  
+    ---When?---
+    June 16, 2010                                                                                             
+*/
 
 //////////////////////////////////////////////////////////////////
 // VERTICAL LEVEL
@@ -367,8 +461,8 @@ int vs_bt = 255;
 int vs_color_interval = 50;
 int vs_color_counter = 0;
 
-void vs_update() {
-  
+void vs_update()
+{
   vs_interval = map(voiceLevel, 0, 255, vs_max_interval, vs_min_interval);
   
   if(vs_counter>=vs_interval) {
@@ -406,19 +500,74 @@ void vs_update() {
       }
     }  
   }
-  
-  
 }
+
+//struct LedMode_testCycle
+//{
+//  void init()
+//  {
+//  };
+//  
+//  void step()
+//  {
+//    for(int y = 0; y < Y_COUNT; y++){ 
+//      for(int x = 0; x < X_COUNT; x++){
+//        setPixel(x, y, 255, 255, 0);
+//      }
+//    }
+//  };
+//} modeTestCycle;
 /*
+ ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
+/\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
+\ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
+ \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
+  \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
 
-Some handy functions that aren't included in Arduino.
 
+                                                                                                     
+    ---What?---
+    Some handy functions that are not included in Arduino by default.
+    
+    ---Why?---
+    For linear interpolation of PWM values (colors) in Excellent Adventure.
+    
+    ---Who?---
+    Daniel Massey - pichiste@gmail.com
+      
+    ---When?---
+    June 19, 2010                                                                                             
 */
 
 float lerp(float start, float stop, float amt) {
    return start + (stop-start) * amt;
 }
+/*
+ ______ ______ __   __      __     __ ______ __  __ ______ __  __ ______  
+/\  ___\\  == \\ "-.\ \    /\ \  _ \ \\  == \\ \/ / \  ___\\ \_\ \\  == \ 
+\ \ \____\  __< \ \-.  \   \ \ \/ ".\ \\  __< \  _"-.\___  \\  __ \\  _-/ 
+ \ \_____\\_____\\ \_\\"\   \ \ \__/".~\\ \_\ \\ \_\ \\_____\\_\ \_\\_\   
+  \/_____//_____//_/ \/_/    \/_/   \/_//_/ /_//_/\/_//_____//_/\/_//_/   
 
+
+                                                                                                     
+    ---What?---
+    Audio signal processing utilities for Ex-Adv Master sketch, includes
+    luminance map table courtesy of John Laur - johnl@blurbco.com
+    
+    ---Why?---
+    Because luminance is not linearly related to voltage, or in this case
+    PWM duty cycle. John's table is intended for the 16-bit PWM values
+    used on MaxMs running CYZ_RGB firmware, so we divide them down as
+    needed.
+      
+    ---Who?---
+    Daniel Massey - pichiste@gmail.com
+    Gustavo Huber - gush@carbonworkshop.com
+  
+    ---When?---
+    June 19, 2010                                                                                             
+*/
 
 int lingerLevel = 0;
 int dissipation = 50;

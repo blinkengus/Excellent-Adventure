@@ -26,6 +26,10 @@
 #include "WProgram.h"
 #include "wiring.h"
 #include "Wire.h"
+#include "avr/io.h"
+
+#define cbi(WHO,C)        ((WHO) |= (1 << C))
+#define cbi(WHO,C)        ((WHO) |= (1 << (C)))
 
 extern "C" { 
 #include "utility/twi.h"  // from Wire library, so we can do bus scanning
@@ -42,6 +46,18 @@ typedef struct _blinkm_script_line {
 static void BlinkM_begin()
 {
   Wire.begin();                // join i2c bus (address optional for master)
+
+#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega8__) || defined(__AVR_ATmega328P__)
+   // activate internal pull-ups for twi
+   // as per note from atmega8 manual pg167
+   cbi(PORTC, 4);
+   cbi(PORTC, 5);
+ #else
+   // activate internal pull-ups for twi
+   // as per note from atmega128 manual pg204
+   cbi(PORTD, 0);
+   cbi(PORTD, 1);
+ #endif
 }
 
 /*
