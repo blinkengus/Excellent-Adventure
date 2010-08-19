@@ -1,5 +1,7 @@
 #ifndef _EFFECT_MANAGER_H
 #define _EFFECT_MANAGER_H
+#include "Globals.h"
+#include "Spectrum.h"
 #include "Canvas.h"
 
 #define EM_MODE_IDLE                0
@@ -11,6 +13,7 @@
 #define EFFECTMODE_OUTRO            2
 
 
+
 // Idle -> Ring -> 
 
 
@@ -18,9 +21,16 @@
 // is driven by a timer interrupt service routine (ISR), and switches between
 // various effects based on different conditions.
 
+class EffectManager;
+
 struct Effect
 {
-    int                                             (*func)(Canvas *, char);
+    int                                             (*func)
+                                                    (
+                                                        Canvas *, 
+                                                        EffectManager *,
+                                                        char
+                                                    );
     int                                             flags;
 };
 
@@ -41,7 +51,10 @@ class EffectManager
     
     Canvas                                              m_canvas0;
     Canvas                                              m_canvas1;
+    Spectrum                                            m_spectrum;
 
+    void InitPanels();
+    void InitSpectrum();
 public:
     EffectManager
     (
@@ -54,7 +67,7 @@ public:
     // An effect is a static function that is called for each frame of the
     // animation.  The "type" of an effect is its 
 
-    void InitPanels();
+    void InitHardware();
 
     void AddEffectsArrays
     ( 
@@ -72,6 +85,7 @@ public:
     );
 
     void InstallAnimator();
+    unsigned short * GetSpectrum();
 
     void Callback();
     

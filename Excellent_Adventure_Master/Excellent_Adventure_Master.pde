@@ -23,9 +23,12 @@
    June 11, 2010
  */
 
-#include <Wire.h>
 #include <WProgram.h>
-#include <TimerOne.h>
+#ifdef USE_ARDUINO
+#include <Wire.h>
+#endif
+
+#include "Globals.h"
 
 
 #define DEBUG
@@ -37,7 +40,7 @@
 // Blinks an LED on the Arduino to indicate operation
 #define BLINK_ENABLED
 
-#define SERIAL_ENABLED
+//#define SERIAL_ENABLED
 
 // Define if this is the master booth
 #define BOOTH_MASTER
@@ -100,9 +103,12 @@ EffectManager EM(PERIOD_MICROSEC);
 SLICControl SC;
 
 Effect effects[] =
-{
-    {&Spotlight, 0}
-,   {&SimpleColumns, 0}
+{ 
+    {&SimpleSpectrum, 0}
+//    {&CheckerBoard, 0}
+//    {&SimpleColumns, 0}
+//    {&Spotlight, 0}
+//,   {&SimpleColumns, 0}
 };
 
 
@@ -112,8 +118,8 @@ void setup()
 
     // Pin assignments
 
-#ifdef SERIAL_ENABLED
-    Serial.begin(38400);
+#ifdef USE_UART
+    SERIAL.begin(SERIAL_RATE);
 #endif
 
     EM.AddEffectsArrays
@@ -123,7 +129,7 @@ void setup()
         effects, 1
     );
     EM.SetMode(EM_MODE_IDLE);
-    EM.InitPanels();
+    EM.InitHardware();
 
     SC.InitSLICPins();
 
@@ -161,20 +167,20 @@ void loop()
         switch (state)
         {
         case STATE_IDLE:
-            Serial.println("State: IDLE");
+            PRINTLN("State: IDLE");
             break;
         case STATE_RING:
-            Serial.println("State: RING");
+            PRINTLN("State: RING");
             break;
         case STATE_CALL:
-            Serial.println("State: CALL");
+            PRINTLN("State: CALL");
             break;
         case STATE_CALLENDED:
-            Serial.println("State: CALL ENDED");
+            PRINTLN("State: CALL ENDED");
             break;
         default:
-            Serial.print("State: UNKNOWN val = ");
-            Serial.println(state);
+            PRINT("State: UNKNOWN val = ");
+            PRINTLN(state);
             break;
         }
     }

@@ -1,4 +1,8 @@
+
+#ifdef ISR_ANIMATOR
 #include <TimerOne.h>
+#endif
+
 #include "EffectManager.h"
 //#include "TimerOne.h"
 
@@ -28,6 +32,18 @@ void EffectManager :: InitPanels()
 {
     m_canvas0.InitPanels();
 }
+
+void EffectManager :: InitHardware()
+{
+    InitPanels();
+    InitSpectrum();
+}
+
+void EffectManager :: InitSpectrum()
+{
+    m_spectrum.InitSpectrumPins();
+}
+
 
 
 void EffectManager :: AddEffectsArrays
@@ -77,9 +93,15 @@ void EffectManager :: InstallAnimator ()
 
 #endif
 
+unsigned short * EffectManager :: GetSpectrum()
+{
+    return m_spectrum.GetSpectrum();
+}
+
 void EffectManager :: Callback()
 {
     this->m_canvas0.BlitToPanels();
+    this->m_spectrum.ReadSpectrum();
     Effect * e = this->m_effectsIdle;
-    e[0].func(&this->m_canvas0, EFFECTMODE_LOOP);
+    e[0].func(&this->m_canvas0, const_cast<EffectManager *>(this), EFFECTMODE_LOOP);
 }
