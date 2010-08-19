@@ -4,6 +4,7 @@
 #include "Canvas.h"
 #include "Spectrum.h"
 
+
 int SimpleSpectrum(Canvas *c, EffectManager *em, char mode)
 {
     static unsigned n = 0;
@@ -88,14 +89,18 @@ int SimpleSpectrum(Canvas *c, EffectManager *em, char mode)
 
 int WarpSpectrum(Canvas *c, EffectManager *em, char mode)
 {
-    static uint8_t pos[CANVAS_WIDTH];
+    static unsigned short pos[CANVAS_WIDTH];
+    static          short vel[CANVAS_WIDTH];
     
     static char currentMode = -1;
     if(mode != currentMode){  // performed only once
         switch(mode){
             case EFFECTMODE_INTRO:
-                for(uint8_t x = CANVAS_WIDTH; --x >= 0;)
-                    pos[x] = 0;
+                for(uint8_t x = 0; x < CANVAS_WIDTH; x++){
+                    pos[x] = CANVAS_HM1;
+                    for(uint8_t y = 0; y < CANVAS_HEIGHT; y++)
+                        c->PutPixel(x, y, 0);
+                }
                 break;
         }
         currentMode = mode;
@@ -103,18 +108,20 @@ int WarpSpectrum(Canvas *c, EffectManager *em, char mode)
     else{  // step
         unsigned short *spectrum = em->GetSpectrum();
         for(uint8_t x = 0; x < CANVAS_WIDTH; x++){
-            pos[x] = min_ub(10, spectrum[x] / 100);
+            vel[x] += ((short)spectrum[x] - 150) * 10;
         }
     }
 
     for(uint8_t x = 0; x < CANVAS_WIDTH; x++){
+        uint8_t px = pos[x] / 6554;
         for(uint8_t y = 0; y < CANVAS_HEIGHT; y++){
-            c->PutPixel(x, y, y < pos[x] ? COLOR_B(0x1f,0,0) : COLOR_B(0,0,0));
+            c->PutPixel(x, y, y == px ? COLOR_B(0x1f,0,0) : COLOR_B(0,0,0));
         }
     }
     
     return 1;
 }
+
 
 int SimpleColumns(Canvas *c, EffectManager *em, char mode)
 {
@@ -181,7 +188,7 @@ int SimpleColumns(Canvas *c, EffectManager *em, char mode)
     return 1;
 }
 
-int Spotlight(Canvas *c, EffectManager *em, char mode)
+int Spotlight(Canvas *c, char mode)
 {
     static int step = 0;
     
@@ -194,19 +201,19 @@ int Spotlight(Canvas *c, EffectManager *em, char mode)
     float blx = sin_lut[MOD32(step + 24)] / 255.0f * CANVAS_WM1;
     float bly = sin_lut[MOD32(step + 16)] / 255.0f * CANVAS_HM1;
     
-    ubyte r, g, b;
+    uint8_t r, g, b;
     for(char y = 0; y < CANVAS_HEIGHT; y++){
         for(char x = 0; x < CANVAS_WIDTH; x++){
             r = max_f(0.0f, 4.0f - dist(x, y, rlx, rly)) * 0x1F;
             g = max_f(0.0f, 3.0f - dist(x, y, glx, gly)) * 0x1F;
             b = max_f(0.0f, 4.0f - dist(x, y, blx, bly)) * 0x1F;
-            c->PutPixel(x, y, COLOR_B(min_ub(r, 0x1F), min_ub(g, 0x1F), min_ub(b, 0x1F)));
+            c->PutPixel(x, y, COLOR_B(min_ub(r, 0x1F), min_ub(g, 0x1f), min_ub(b, 0x1f)));
         }
     }
     
     step++;
+    
     return 1;
-
 }
 
 int CheckerBoard(Canvas *c, EffectManager *em, char mode)
@@ -264,4 +271,3 @@ int CheckerBoard(Canvas *c, EffectManager *em, char mode)
     }
     return 1;
 }
-
