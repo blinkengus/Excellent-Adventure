@@ -99,7 +99,7 @@ EffectManager EM(PERIOD_MICROSEC);
 SLICControl SC;
 
 Effect effects[] =
-{ 
+{
     {&WarpSpectrum, 0}
 //    {&CheckerBoard, 0}
 //    {&SimpleColumns, 0}
@@ -287,6 +287,3 @@ void loop()
 #endif
     //delay(POLLING_DELAY);
 }
-
-
-

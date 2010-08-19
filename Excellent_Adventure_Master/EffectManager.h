@@ -13,6 +13,7 @@
 #define EFFECTMODE_OUTRO            2
 
 
+
 // Idle -> Ring -> 
 
 
