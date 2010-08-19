@@ -2,10 +2,11 @@
 #define _EFFECTS_H
 #include "EffectManager.h"
 
-int SimpleColumns(Canvas *c, char mode);
 
-int Spotlight(Canvas *c, char mode);
-int Pinwheel(Canvas *c, char mode);
-int MatrixRain(Canvas *c, char mode);
+
+int SimpleSpectrum(Canvas *c, EffectManager *em, char mode);
+int SimpleColumns(Canvas *c, EffectManager *em, char mode);
+int Spotlight(Canvas *c, EffectManager *em, char mode);
+int CheckerBoard(Canvas *c, EffectManager *em, char mode);
 
 #endif

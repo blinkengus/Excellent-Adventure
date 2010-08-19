@@ -1,28 +1,7 @@
 #ifndef _SLIC_H
 #define _SLIC_H
+#include "Globals.h"
 
-// Ring Mode
-// Bias conditions during ringing. Set to 1 during ringing, 0 other.
-#define SLIC_PIN_RING_MODE_L        4
-#define SLIC_PIN_RING_MODE_R        7
-
-
-// Forward/Reverse
-// Logic 0 reverses Tip and Ring.  Toggled to produce ring output.
-
-// NOT USED:
-//#define SLIC_PIN_FORWARD_REVERSE_L  3
-//#define SLIC_PIN_FORWARD_REVERSE_R  8
-
-// Switch-hook
-// Indicates off-hook condition when 1.
-#define SLIC_PIN_SWITCH_HOOK_L      2
-#define SLIC_PIN_SWITCH_HOOK_R      12
-
-// CHANGE THESE:
-
-#define SLIC_PIN_RINGER_L           3
-#define SLIC_PIN_RINGER_R           8
 
 
 #define DEBOUNCE_ALL_ONES           0xFFFF
