@@ -90,7 +90,7 @@ int SimpleSpectrum(Canvas *c, EffectManager *em, char mode)
 int WarpSpectrum(Canvas *c, EffectManager *em, char mode)
 {
     static unsigned short pos[CANVAS_WIDTH];
-    static          short vel[CANVAS_WIDTH];
+    //static          short vel[CANVAS_WIDTH];
     
     static char currentMode = -1;
     if(mode != currentMode){  // performed only once
@@ -108,7 +108,7 @@ int WarpSpectrum(Canvas *c, EffectManager *em, char mode)
     else{  // step
         unsigned short *spectrum = em->GetSpectrum();
         for(uint8_t x = 0; x < CANVAS_WIDTH; x++){
-            vel[x] += ((short)spectrum[x] - 150) * 10;
+            pos[x] -= ((short)spectrum[x] - 150) * 10;
         }
     }
 
