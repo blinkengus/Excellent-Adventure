@@ -102,7 +102,7 @@ Effect effects[] =
 {
     {&WarpSpectrum, 0}
 //    {&CheckerBoard, 0}
-//    {&SimpleColumns, 0}
+//    {&SimpleSpectrum, 0}
 //    {&Spotlight, 0}
 //    {&SimpleColumns, 0}
 };
