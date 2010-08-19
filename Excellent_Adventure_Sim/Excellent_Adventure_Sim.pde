@@ -1,8 +1,8 @@
 /**
-* Excellent Adventure Simulator
-*
-* A simulator to help develop animations without the need for an arduino.
-*/
+ * Excellent Adventure Simulator
+ *
+ * A simulator to help develop animations without the need for an arduino.
+ */
 
 import processing.opengl.*;
 import javax.media.opengl.*;
@@ -22,6 +22,10 @@ float rotationX0;
 float rotationY0;
 float mouseX0;
 float mouseY0;
+
+
+static final char TRUE = 1;
+static final char FALSE = 0;
 
 static final int PANELS = 3;
 
@@ -53,12 +57,18 @@ static final float PANEL_YOFFSET =
 static final int ANIMATION_MOUSE  =   0;
 static final int ANIMATION_SERIAL =  1;
 
+static final int I2C_FIRST_ADDRESS = 10;
 
+float time0;
+char timeReset = 0;
+char resynch = TRUE;
 
 int animationIndex = ANIMATION_SERIAL;
 
 AudioInput lineIn;
 FFT lineInFFT;
+
+int pixelCounter = -1;
 
 void setup()
 {
@@ -67,7 +77,7 @@ void setup()
     //cam = new PeasyCam(this, 0,0,0, 10);
     //cam.setMinimumDistance(5);
     //cam.setMaximumDistance(20);
-    
+
     //lineIn = minim.getLineIn(Minim.MONO, 8);
 
     // List all the available serial ports
@@ -92,22 +102,24 @@ void setup()
     SetDisabledPixels();
     rotationX = width / 2;
     rotationY = height / 2;
-    SynchronizeSerialFrames();
-    SynchronizeSerialFrames();
 }
 
 
 void draw()
 {
+    if (resynch == TRUE)
+    {
+        SynchronizeSerialFrames();
+    }
     switch(animationIndex) 
     {
-    case ANIMATION_MOUSE:
-    default:
-        //me_update();
-        break;
-    case ANIMATION_SERIAL:
-        ProcessSerialAnimation();
-        break;
+        case ANIMATION_MOUSE:
+        default:
+            //me_update();
+            break;
+        case ANIMATION_SERIAL:
+            ProcessSerialAnimation();
+            break;
     }
 
     background(0);
@@ -118,7 +130,7 @@ void SynchronizeSerialFrames()
 {
     // Sync on a [255,255,255,255] frame.
     int count255 = 0;
-    while (port.available() >= 1)
+    while (port.available() > 0)
     {
         int v = port.readChar();
         if (v == 255)
@@ -126,6 +138,7 @@ void SynchronizeSerialFrames()
             count255++;
             if (count255 >= 4)
             {
+                resynch = FALSE;
                 break;
             }
         } else {
@@ -140,35 +153,57 @@ void ProcessSerialAnimation()
     //println(port.available());
     while (port.available() >= 4)
     {
+        int who = port.readChar();
         int r = port.readChar();
         int g = port.readChar();
         int b = port.readChar();
-        int who = port.readChar();
 
-        if (who == 255)
+        // Synchronization frame (all 255 values)
+        if ( (who & r & g & b) == 0xFF)
         {
+            pixelCounter = 0;
             continue;
         }
-        int x = who % XCOUNT;
-        int y = who / XCOUNT;
-        //println(x + " " + y + " -> " + r + " " + g + " " + b);
-        if ((x < XCOUNT) && (y < PANEL_YCOUNT))
+
+        // Benchmarking code
+        if (who == 253)
         {
-            setPixel(x, y, r, g, b);
+            time0 = millis();
+            continue;
+        }
+        if (who == 254)
+        {
+            float dTime = millis() - time0;
+            println("** time: " + dTime);
+            timeReset = 0;
+            continue;
         }
 
-        /*
-        for (int y = 0; y < PANEL_YCOUNT; y++)
+        // Our I2C addresses are offset by 10, however, our LED "addresses"
+        // begin at zero.
+        who -= I2C_FIRST_ADDRESS;
+        int x = who % XCOUNT;
+        int y = who / XCOUNT;
+
+        if 
+        (
+            (x >= 0) 
+        &&  (y >= 0) 
+        &&  (x < XCOUNT) 
+        &&  (y < PANEL_YCOUNT)
+
+        )
         {
-            for (int x = 0; x < PANEL_XCOUNT; x++)
-            {
-                // Data is sent out as R0 -> G0 -> B0 -> R1 -> ... 
-                int r = port.readChar();
-                int g = port.readChar();
-                int b = port.readChar();
-            }
+            setPixel(x, y, r, g, b);
+            println(pixelCounter + ": (" + (who+10) + ") " + x + " " + y + " -> " + r + " " + g + " " + b);
+        } else {
+            println(pixelCounter + ": (" + (who+10) + ") " + x + " " + y + 
+                " -> " + r + " " + g + " " + b + " - ERROR");
+            resynch = TRUE;
+            return;
         }
-        */
+        pixelCounter++;
+
     }
 }
 
@@ -177,7 +212,7 @@ void SetDisabledPixels()
     // A disabled pixel has a negative red value, and is skipped when drawing
     // to the panels.  The green value will used for a grey value in the box
     // if the value is >= 0, and transparent if < 0
-    
+
     //   0 1 2    3 4 5    6 7 8
     // [ o . o ][ o . o ][ o . o ] 0
     // [ o . o ][ o . o ][ o . o ] 1
@@ -190,14 +225,14 @@ void SetDisabledPixels()
     // [ o . +----+ . o ][ o . o ] 7
     // [ o . o ][ o . o ][ o . o ] 8
     // [ o . o ][ o . o ][ o . o ] 9 
-    
+
     for (int y = 0; y < PANEL_YCOUNT; y++)
     {
         for (int x = 0; x < XCOUNT; x++)
         {
             pixelVals[x][y][0] =
-            pixelVals[x][y][1] =
-            pixelVals[x][y][2] = 0;
+                pixelVals[x][y][1] =
+                pixelVals[x][y][2] = 0;
         }
     }
 
@@ -205,34 +240,34 @@ void SetDisabledPixels()
     for (int y = 0; y < PANEL_YCOUNT; y++)
     {
         pixelVals[1][y][0] =
-        pixelVals[4][y][0] =
-        pixelVals[7][y][0] = -1;
+            pixelVals[4][y][0] =
+            pixelVals[7][y][0] = -1;
         pixelVals[1][y][1] =
-        pixelVals[4][y][1] =
-        pixelVals[7][y][1] = -1; //transparent
+            pixelVals[4][y][1] =
+            pixelVals[7][y][1] = -1; //transparent
     }
 
     // Battery
     for (int y = 5; y < 8; y++)
     {
         pixelVals[2][y][0] =
-        pixelVals[3][y][0] = -1;
+            pixelVals[3][y][0] = -1;
         pixelVals[2][y][1] =
-        pixelVals[3][y][1] = 31;
+            pixelVals[3][y][1] = 31;
     }
     // Phone
     for (int y = 3; y < 7; y++)
     {
         pixelVals[5][y][0] =
-        pixelVals[6][y][0] = -1;
+            pixelVals[6][y][0] = -1;
         pixelVals[5][y][1] =
-        pixelVals[6][y][1] = 63;
+            pixelVals[6][y][1] = 63;
     }
     pixelVals[0][PANEL_YCOUNT][0] =
-    pixelVals[2][PANEL_YCOUNT][0] =
-    pixelVals[0][PANEL_YCOUNT+2][0] =
-    pixelVals[2][PANEL_YCOUNT+2][0] = -1;
-    
+        pixelVals[2][PANEL_YCOUNT][0] =
+        pixelVals[0][PANEL_YCOUNT+2][0] =
+        pixelVals[2][PANEL_YCOUNT+2][0] = -1;
+
 
 }
 
@@ -306,7 +341,7 @@ void drawBooth()
     rotateY(-HALF_PI);
     drawBoothPanel(2);
     popMatrix();
-    
+
     pushMatrix();
     //translate(0, PANEL_YCOUNT / 2.0, 0);
     translate(0, -PANEL_YOFFSET, 0);
@@ -320,7 +355,7 @@ void drawBoothPanel(int panel_num)
 {
     pushMatrix();
     translate(  -(PIXEL_SPACING * (PANEL_XCOUNT - 1) / 2.0 + PANEL_MARGIN), 
-                -(PIXEL_SPACING * (PANEL_YCOUNT - 1) / 2.0 + PANEL_MARGIN));
+        -(PIXEL_SPACING * (PANEL_YCOUNT - 1) / 2.0 + PANEL_MARGIN));
     //translate(-PANEL_XOFFSET, -PANEL_XOFFSET);
     for(int y = 0; y < PANEL_YCOUNT; y++) {
         for(int x = 0; x < PANEL_XCOUNT; x++) {
@@ -336,7 +371,7 @@ void drawBoothTopPanel()
 {
     pushMatrix();
     translate(  -(PIXEL_SPACING * (PANEL_TOP_XCOUNT - 1) / 2.0 + PANEL_MARGIN), 
-                -(PIXEL_SPACING * (PANEL_TOP_YCOUNT - 1) / 2.0 + PANEL_MARGIN));
+        -(PIXEL_SPACING * (PANEL_TOP_YCOUNT - 1) / 2.0 + PANEL_MARGIN));
     for(int y = 0; y < PANEL_TOP_YCOUNT; y++) {
         for(int x = 0; x < PANEL_TOP_XCOUNT; x++) {
             pushMatrix();
@@ -375,5 +410,6 @@ void drawBoothLED(int x, int y, float sc)
 
     }
 }
+
 
 
