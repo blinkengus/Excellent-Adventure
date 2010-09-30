@@ -123,17 +123,21 @@ void setup()
 
 
 void loop() {
-  panelstepper();
+  digitalWrite(13, HIGH);
+  delay(10);
+  //panelstepper();
   //speedypanelstepper();
-  rowchaser();
+  //rowchaser();
   columnchaser();
   rowsweep();
   //columnspin();
-  corkscrew();
+  //corkscrew();
   //colorsweeps();
-  colorfades();
+  //colorfades();
   //strobemodes();
   //delay(100);
+  digitalWrite(13, LOW);
+  delay(10);
 }
 
 void panelstepper(){
